@@ -13,14 +13,21 @@ const Header = ({ onSearch, locations = [] }) => {
   const [liveFilter, setLiveFilter] = useState('');
   const [locationOpen, setLocationOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dateOpen, setDateOpen] = useState(false);
+  const [checkIn, setCheckIn] = useState('');
+  const [checkOut, setCheckOut] = useState('');
+  const [guestOpen, setGuestOpen] = useState(false);
+  const [guests, setGuests] = useState(1);
   const locationRef = useRef(null);
+  const dateRef = useRef(null);
+  const guestRef = useRef(null);
 
-  // Close location dropdown when clicking outside
+  // Close all dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (locationRef.current && !locationRef.current.contains(e.target)) {
-        setLocationOpen(false);
-      }
+      if (locationRef.current && !locationRef.current.contains(e.target)) setLocationOpen(false);
+      if (dateRef.current && !dateRef.current.contains(e.target)) setDateOpen(false);
+      if (guestRef.current && !guestRef.current.contains(e.target)) setGuestOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -113,16 +120,92 @@ const Header = ({ onSearch, locations = [] }) => {
 
         <div style={styles.searchDivider} />
 
-        <div style={styles.searchSection}>
+        {/* When — date picker dropdown */}
+        <div style={styles.searchSection} ref={dateRef}>
           <label style={styles.searchLabel}>When</label>
-          <span style={styles.searchPlaceholder}>Add dates</span>
+          <span
+            style={{ ...styles.searchPlaceholder, cursor: 'pointer' }}
+            onClick={() => { setDateOpen(!dateOpen); setLocationOpen(false); setGuestOpen(false); }}
+          >
+            {checkIn && checkOut
+              ? `${new Date(checkIn).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – ${new Date(checkOut).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`
+              : checkIn
+              ? `${new Date(checkIn).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – Check-out`
+              : 'Add dates'}
+          </span>
+
+          {dateOpen && (
+            <div style={styles.dateDropdown}>
+              <p style={styles.dateDropdownTitle}>Select dates</p>
+              <div style={styles.dateFields}>
+                <div style={styles.dateField}>
+                  <label style={styles.dateFieldLabel}>Check-in</label>
+                  <input
+                    type="date"
+                    value={checkIn}
+                    onChange={(e) => setCheckIn(e.target.value)}
+                    style={styles.dateInput}
+                  />
+                </div>
+                <div style={styles.dateField}>
+                  <label style={styles.dateFieldLabel}>Check-out</label>
+                  <input
+                    type="date"
+                    value={checkOut}
+                    onChange={(e) => setCheckOut(e.target.value)}
+                    style={styles.dateInput}
+                  />
+                </div>
+              </div>
+              {checkIn && checkOut && (
+                <button
+                  type="button"
+                  style={styles.dateApplyBtn}
+                  onClick={() => setDateOpen(false)}
+                >
+                  Apply
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div style={styles.searchDivider} />
 
-        <div style={styles.searchSectionLast}>
+        {/* Who — guest counter dropdown */}
+        <div style={{ ...styles.searchSectionLast, position: 'relative' }} ref={guestRef}>
           <label style={styles.searchLabel}>Who</label>
-          <span style={styles.searchPlaceholder}>Add guests</span>
+          <span
+            style={{ ...styles.searchPlaceholder, cursor: 'pointer' }}
+            onClick={() => { setGuestOpen(!guestOpen); setLocationOpen(false); setDateOpen(false); }}
+          >
+            {guests > 0 ? `${guests} guest${guests > 1 ? 's' : ''}` : 'Add guests'}
+          </span>
+
+          {guestOpen && (
+            <div style={styles.guestDropdown}>
+              <p style={styles.guestDropdownTitle}>Guests</p>
+              <div style={styles.guestRow}>
+                <div>
+                  <p style={styles.guestType}>Adults</p>
+                  <p style={styles.guestSub}>Ages 13 or above</p>
+                </div>
+                <div style={styles.counter}>
+                  <button
+                    type="button"
+                    style={styles.counterBtn}
+                    onClick={() => setGuests(Math.max(1, guests - 1))}
+                  >−</button>
+                  <span style={styles.counterNum}>{guests}</span>
+                  <button
+                    type="button"
+                    style={styles.counterBtn}
+                    onClick={() => setGuests(guests + 1)}
+                  >+</button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <button type="submit" style={styles.searchBtn}>
@@ -301,6 +384,122 @@ const styles = {
   },
   locationPin: {
     fontSize: '16px',
+  },
+  dateDropdown: {
+    position: 'absolute',
+    top: '56px',
+    left: '-20px',
+    backgroundColor: '#fff',
+    border: '1px solid #ddd',
+    borderRadius: '16px',
+    boxShadow: '0 8px 28px rgba(0,0,0,0.15)',
+    zIndex: 300,
+    padding: '20px',
+    minWidth: '300px',
+  },
+  dateDropdownTitle: {
+    fontSize: '11px',
+    fontWeight: '700',
+    color: '#717171',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    marginBottom: '16px',
+  },
+  dateFields: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+  dateField: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+  },
+  dateFieldLabel: {
+    fontSize: '12px',
+    fontWeight: '700',
+    color: '#222',
+  },
+  dateInput: {
+    border: '1px solid #ddd',
+    borderRadius: '8px',
+    padding: '10px 12px',
+    fontSize: '14px',
+    color: '#222',
+    outline: 'none',
+    cursor: 'pointer',
+  },
+  dateApplyBtn: {
+    marginTop: '16px',
+    width: '100%',
+    padding: '10px',
+    backgroundColor: '#FF385C',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '700',
+    cursor: 'pointer',
+  },
+  guestDropdown: {
+    position: 'absolute',
+    top: '56px',
+    right: 0,
+    backgroundColor: '#fff',
+    border: '1px solid #ddd',
+    borderRadius: '16px',
+    boxShadow: '0 8px 28px rgba(0,0,0,0.15)',
+    zIndex: 300,
+    padding: '20px',
+    minWidth: '260px',
+  },
+  guestDropdownTitle: {
+    fontSize: '11px',
+    fontWeight: '700',
+    color: '#717171',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    marginBottom: '16px',
+  },
+  guestRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  guestType: {
+    fontSize: '15px',
+    fontWeight: '600',
+    color: '#222',
+    marginBottom: '2px',
+  },
+  guestSub: {
+    fontSize: '13px',
+    color: '#717171',
+  },
+  counter: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  counterBtn: {
+    width: '32px',
+    height: '32px',
+    borderRadius: '50%',
+    border: '1px solid #ddd',
+    backgroundColor: '#fff',
+    fontSize: '18px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    color: '#222',
+  },
+  counterNum: {
+    fontSize: '15px',
+    fontWeight: '600',
+    color: '#222',
+    minWidth: '16px',
+    textAlign: 'center',
   },
   authArea: {
     flexShrink: 0,

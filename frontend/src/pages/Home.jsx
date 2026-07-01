@@ -10,14 +10,14 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 // Static data for the extra sections
 const destinations = [
-  { name: 'Cape Town', country: 'South Africa', color: '#FFE8D6' },
-  { name: 'Johannesburg', country: 'South Africa', color: '#D6EAF8' },
-  { name: 'Durban', country: 'South Africa', color: '#D5F5E3' },
-  { name: 'Pretoria', country: 'South Africa', color: '#F9EBEA' },
-  { name: 'George', country: 'South Africa', color: '#EDE7F6' },
-  { name: 'Knysna', country: 'South Africa', color: '#FFF9C4' },
-  { name: 'Stellenbosch', country: 'South Africa', color: '#FCE4EC' },
-  { name: 'Port Elizabeth', country: 'South Africa', color: '#E0F7FA' },
+  { name: 'Cape Town', country: 'South Africa', image: 'capetown-inspo.jpg' },
+  { name: 'Johannesburg', country: 'South Africa', image: 'joburg-inspo.jpg' },
+  { name: 'Durban', country: 'South Africa', image: 'durban-inspo.jpg' },
+  { name: 'Pretoria', country: 'South Africa', image: 'pretoria-inspo.jpg' },
+  { name: 'George', country: 'South Africa', image: 'george-inspo.jpg' },
+  { name: 'Knysna', country: 'South Africa', image: 'knysna-inspo.jpg' },
+  { name: 'Stellenbosch', country: 'South Africa', image: 'stellenbosch-inspo.jfif' },
+  { name: 'Port Elizabeth', country: 'South Africa', image: 'portelizabeth-inspo.jpg' },
 ];
 
 const experiences = [
@@ -122,7 +122,18 @@ const Home = () => {
           <h2 style={styles.sectionTitle}>Inspiration for your next trip</h2>
           <div style={styles.destinationGrid}>
             {destinations.map((d) => (
-              <div key={d.name} style={{ ...styles.destinationCard, backgroundColor: d.color }}>
+              <div
+                key={d.name}
+                style={{
+                  ...styles.destinationCard,
+                  backgroundImage: `url(${API_URL}/images/${encodeURIComponent(d.image)})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                <div style={styles.destOverlay} />
                 <p style={styles.destName}>{d.name}</p>
                 <p style={styles.destCountry}>{d.country}</p>
               </div>
@@ -312,16 +323,28 @@ const styles = {
     borderRadius: '12px',
     padding: '24px 20px',
     cursor: 'pointer',
+    minHeight: '120px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+  },
+  destOverlay: {
+    position: 'absolute',
+    inset: 0,
+    background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 60%, transparent 100%)',
+    borderRadius: '12px',
   },
   destName: {
     fontSize: '16px',
     fontWeight: '700',
-    color: '#222',
+    color: '#fff',
     marginBottom: '4px',
+    position: 'relative',
   },
   destCountry: {
     fontSize: '14px',
-    color: '#717171',
+    color: 'rgba(255,255,255,0.85)',
+    position: 'relative',
   },
 
   // Experiences
