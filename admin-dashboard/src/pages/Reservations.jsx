@@ -5,6 +5,8 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const Reservations = () => {
   const { user } = useAuth();
   const [reservations, setReservations] = useState([]);
@@ -13,7 +15,7 @@ const Reservations = () => {
 
   const fetchReservations = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/reservations/host', {
+      const { data } = await axios.get(`${API_URL}/api/reservations/host`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       setReservations(data);
@@ -28,7 +30,7 @@ const Reservations = () => {
     if (!window.confirm('Are you sure you want to cancel this reservation?')) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/reservations/${id}`, {
+      await axios.delete(`${API_URL}/api/reservations/${id}`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       setReservations(reservations.filter((r) => r._id !== id));

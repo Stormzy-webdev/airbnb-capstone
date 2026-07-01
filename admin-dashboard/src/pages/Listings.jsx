@@ -6,6 +6,8 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const Listings = () => {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +18,7 @@ const Listings = () => {
 
   const fetchListings = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/accommodations');
+      const { data } = await axios.get(`${API_URL}/api/accommodations`);
       setListings(data);
     } catch (err) {
       setError('Failed to load listings');
@@ -28,7 +30,7 @@ const Listings = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this listing?')) return;
     try {
-      await axios.delete(`http://localhost:5000/api/accommodations/${id}`, {
+      await axios.delete(`${API_URL}/api/accommodations/${id}`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       setListings(listings.filter((listing) => listing._id !== id));

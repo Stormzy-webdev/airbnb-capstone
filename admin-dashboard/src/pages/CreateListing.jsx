@@ -6,6 +6,8 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const CreateListing = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -46,7 +48,7 @@ const CreateListing = () => {
     try {
       setLoading(true);
       await axios.post(
-        'http://localhost:5000/api/accommodations',
+        `${API_URL}/api/accommodations`,
         {
           ...form,
           guests: Number(form.guests),

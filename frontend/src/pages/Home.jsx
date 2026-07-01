@@ -6,6 +6,8 @@ import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 // Static data for the extra sections
 const destinations = [
   { name: 'Cape Town', country: 'South Africa', color: '#FFE8D6' },
@@ -28,10 +30,10 @@ const experiences = [
 ];
 
 const getaways = [
-  { label: 'Beach', desc: 'Sun, sand and sea', image: 'http://localhost:5000/images/beach%20-inspo.jpg' },
-  { label: 'Mountains', desc: 'Fresh air and views', image: 'http://localhost:5000/images/mountains%20-%20inspo.jpg' },
-  { label: 'City breaks', desc: 'Culture and nightlife', image: 'http://localhost:5000/images/citybreaks%20-%20inspo.jpg' },
-  { label: 'Countryside', desc: 'Peace and quiet', image: 'http://localhost:5000/images/countrylife%20-%20inspo.jpg' },
+  { label: 'Beach', desc: 'Sun, sand and sea', image: `${API_URL}/images/beach%20-inspo.jpg` },
+  { label: 'Mountains', desc: 'Fresh air and views', image: `${API_URL}/images/mountains%20-%20inspo.jpg` },
+  { label: 'City breaks', desc: 'Culture and nightlife', image: `${API_URL}/images/citybreaks%20-%20inspo.jpg` },
+  { label: 'Countryside', desc: 'Peace and quiet', image: `${API_URL}/images/countrylife%20-%20inspo.jpg` },
 ];
 
 const Home = () => {
@@ -42,7 +44,7 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/accommodations')
+    axios.get(`${API_URL}/api/accommodations`)
       .then(({ data }) => {
         setListings(data);
         setFiltered(data);

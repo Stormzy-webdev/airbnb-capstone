@@ -6,6 +6,8 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const UpdateListing = () => {
   const { id } = useParams();
   const { user } = useAuth();
@@ -35,7 +37,7 @@ const UpdateListing = () => {
   useEffect(() => {
     const fetchListing = async () => {
       try {
-        const { data } = await axios.get(`http://localhost:5000/api/accommodations/${id}`);
+        const { data } = await axios.get(`${API_URL}/api/accommodations/${id}`);
         setForm({
           title: data.title || '',
           type: data.type || '',
@@ -79,7 +81,7 @@ const UpdateListing = () => {
     try {
       setLoading(true);
       await axios.put(
-        `http://localhost:5000/api/accommodations/${id}`,
+        `${API_URL}/api/accommodations/${id}`,
         {
           ...form,
           guests: Number(form.guests),

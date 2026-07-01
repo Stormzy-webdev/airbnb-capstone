@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,7 +25,7 @@ const Login = () => {
 
     try {
       setLoading(true);
-      const { data } = await axios.post('http://localhost:5000/api/users/login', {
+      const { data } = await axios.post(`${API_URL}/api/users/login`, {
         email,
         password,
       });
@@ -43,7 +45,7 @@ const Login = () => {
         <div style={styles.leftContent}>
           <div style={styles.logoRow}>
             <img
-              src="http://localhost:5000/images/AirBnBLogo.jfif"
+              src={`${API_URL}/images/AirBnBLogo.jfif`}
               alt="Airbnb"
               style={{ height: '44px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
             />

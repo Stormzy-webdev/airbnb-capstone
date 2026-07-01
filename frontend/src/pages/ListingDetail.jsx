@@ -1,6 +1,12 @@
 // Listing detail page — shows the full property info, image gallery, booking card, and scrollable detail sections
 
 import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
+import Header from '../components/Header';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const staticReviews = [
   {
@@ -16,7 +22,7 @@ const staticReviews = [
   {
     name: 'Priya M.',
     date: 'September 2024',
-    text: 'One of the best Airbnb experiences I\'ve had. Everything was well thought out and the amenities were top notch. Highly recommend!',
+    text: "One of the best Airbnb experiences I've had. Everything was well thought out and the amenities were top notch. Highly recommend!",
   },
   {
     name: 'Luca B.',
@@ -24,10 +30,6 @@ const staticReviews = [
     text: 'Great value for the location. The space was comfortable and had everything we needed for our trip. 10/10 would stay again.',
   },
 ];
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
-import Header from '../components/Header';
 
 const ListingDetail = () => {
   const { id } = useParams();
@@ -47,7 +49,7 @@ const ListingDetail = () => {
   const [reserveSuccess, setReserveSuccess] = useState(false);
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/accommodations/${id}`)
+    axios.get(`${API_URL}/api/accommodations/${id}`)
       .then(({ data }) => setListing(data))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -82,7 +84,7 @@ const ListingDetail = () => {
       setReserving(true);
       setReserveError('');
       await axios.post(
-        'http://localhost:5000/api/reservations',
+        `${API_URL}/api/reservations`,
         {
           accommodation: listing._id,
           checkIn,

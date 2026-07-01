@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const Register = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -21,7 +23,7 @@ const Register = () => {
     }
     try {
       setLoading(true);
-      const { data } = await axios.post('http://localhost:5000/api/users/register', form);
+      const { data } = await axios.post(`${API_URL}/api/users/register`, form);
       login(data);
       navigate('/');
     } catch (err) {
@@ -36,7 +38,7 @@ const Register = () => {
       <div style={styles.card}>
         <div style={styles.logoRow}>
           <img
-            src="http://localhost:5000/images/AirBnBLogo.jfif"
+            src={`${API_URL}/images/AirBnBLogo.jfif`}
             alt="Airbnb"
             style={{ height: '48px', objectFit: 'contain' }}
           />

@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const Header = ({ onSearch, locations = [] }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -55,7 +57,7 @@ const Header = ({ onSearch, locations = [] }) => {
       {/* Logo */}
       <div style={styles.logo} onClick={() => navigate('/')}>
         <img
-          src="http://localhost:5000/images/AirBnBLogo.jfif"
+          src={`${API_URL}/images/AirBnBLogo.jfif`}
           alt="Airbnb"
           style={{ height: '52px', objectFit: 'contain', cursor: 'pointer' }}
         />

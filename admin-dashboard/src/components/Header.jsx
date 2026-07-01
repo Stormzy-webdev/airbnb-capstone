@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const AirbnbLogo = () => (
   <img
-    src="http://localhost:5000/images/AirBnBLogo.jfif"
+    src={`${API_URL}/images/AirBnBLogo.jfif`}
     alt="Airbnb"
     style={{ height: '52px', objectFit: 'contain' }}
   />
