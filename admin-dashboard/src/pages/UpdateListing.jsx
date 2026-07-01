@@ -1,3 +1,5 @@
+// Edit form for an existing listing — loads the current data, lets the host make changes, then saves them
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';

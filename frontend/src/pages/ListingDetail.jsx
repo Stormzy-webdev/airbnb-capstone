@@ -1,4 +1,29 @@
+// Listing detail page — shows the full property info, image gallery, booking card, and scrollable detail sections
+
 import { useState, useEffect } from 'react';
+
+const staticReviews = [
+  {
+    name: 'Amara K.',
+    date: 'November 2024',
+    text: 'Absolutely loved staying here. The place was exactly as described — clean, cozy and in a great location. Would definitely book again!',
+  },
+  {
+    name: 'James T.',
+    date: 'October 2024',
+    text: 'Storm was a fantastic host. Super responsive and the check-in was seamless. The views were stunning and the apartment was spotless.',
+  },
+  {
+    name: 'Priya M.',
+    date: 'September 2024',
+    text: 'One of the best Airbnb experiences I\'ve had. Everything was well thought out and the amenities were top notch. Highly recommend!',
+  },
+  {
+    name: 'Luca B.',
+    date: 'August 2024',
+    text: 'Great value for the location. The space was comfortable and had everything we needed for our trip. 10/10 would stay again.',
+  },
+];
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -284,6 +309,97 @@ const ListingDetail = () => {
             )}
           </div>
         </div>
+
+        {/* Where you'll sleep */}
+        <hr style={styles.divider} />
+        <h2 style={styles.sectionTitle}>Where you'll sleep</h2>
+        <div style={styles.sleepCard}>
+          <div style={styles.sleepImageBox}>
+            <span style={{ fontSize: '52px' }}>🛏️</span>
+          </div>
+          <p style={styles.sleepCardTitle}>Bedroom</p>
+          <p style={styles.sleepCardSub}>1 queen bed</p>
+        </div>
+
+        {/* Full-width amenities */}
+        <hr style={styles.divider} />
+        <h2 style={styles.sectionTitle}>What this place offers</h2>
+        <div style={styles.offersGrid}>
+          {listing.amenities && listing.amenities.length > 0 ? (
+            listing.amenities.map((a, i) => (
+              <div key={i} style={styles.offerItem}>
+                <span style={styles.offerCheck}>✓</span>
+                {a}
+              </div>
+            ))
+          ) : (
+            <p style={{ color: '#717171' }}>No amenities listed.</p>
+          )}
+        </div>
+
+        {/* Nights + date pickers */}
+        <hr style={styles.divider} />
+        <h2 style={styles.sectionTitle}>
+          {nights > 0
+            ? `${nights} night${nights > 1 ? 's' : ''} in ${listing.location}`
+            : `Select your dates in ${listing.location}`}
+        </h2>
+        <div style={styles.calendarRow}>
+          <div style={styles.calendarBox}>
+            <label style={styles.calLabel}>Check-in</label>
+            <input
+              type="date"
+              value={checkIn}
+              onChange={(e) => setCheckIn(e.target.value)}
+              style={styles.calInput}
+            />
+          </div>
+          <div style={styles.calendarBox}>
+            <label style={styles.calLabel}>Check-out</label>
+            <input
+              type="date"
+              value={checkOut}
+              onChange={(e) => setCheckOut(e.target.value)}
+              style={styles.calInput}
+            />
+          </div>
+        </div>
+
+        {/* Reviews */}
+        <hr style={styles.divider} />
+        <h2 style={styles.sectionTitle}>⭐ 4.92 · 38 reviews</h2>
+        <div style={styles.reviewsGrid}>
+          {staticReviews.map((review, i) => (
+            <div key={i} style={styles.reviewCard}>
+              <div style={styles.reviewHeader}>
+                <div style={styles.reviewAvatar}>{review.name[0]}</div>
+                <div>
+                  <p style={styles.reviewName}>{review.name}</p>
+                  <p style={styles.reviewDate}>{review.date}</p>
+                </div>
+              </div>
+              <p style={styles.reviewText}>{review.text}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Hosted by Storm */}
+        <hr style={styles.divider} />
+        <div style={styles.hostRow}>
+          <div style={styles.hostAvatar}>S</div>
+          <div>
+            <h2 style={styles.hostName}>Hosted by Storm</h2>
+            <div style={styles.hostBadges}>
+              <span style={styles.hostBadge}>⭐ 4.98 Superhost</span>
+              <span style={styles.hostBadge}>✔ Identity verified</span>
+            </div>
+          </div>
+        </div>
+        <p style={styles.hostBio}>
+          Hey, I'm Storm — a passionate traveller turned host. I love making sure every guest feels right at home, whether you're here for business or a holiday. I'm always a message away if you need anything, and I pride myself on keeping every space spotless and well-stocked. Looking forward to hosting you!
+        </p>
+        <button style={styles.contactHostBtn}>Contact host</button>
+
       </div>
     </div>
   );
@@ -501,6 +617,182 @@ const styles = {
     fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer',
+  },
+  sectionTitle: {
+    fontSize: '22px',
+    fontWeight: '700',
+    color: '#222',
+    marginBottom: '24px',
+  },
+  sleepCard: {
+    width: '220px',
+    border: '1px solid #ddd',
+    borderRadius: '16px',
+    padding: '24px',
+    marginBottom: '32px',
+  },
+  sleepImageBox: {
+    width: '100%',
+    height: '120px',
+    backgroundColor: '#f7f7f7',
+    borderRadius: '10px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: '16px',
+  },
+  sleepCardTitle: {
+    fontSize: '15px',
+    fontWeight: '600',
+    color: '#222',
+    marginBottom: '4px',
+  },
+  sleepCardSub: {
+    fontSize: '14px',
+    color: '#717171',
+  },
+  offersGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '14px',
+    marginBottom: '32px',
+    maxWidth: '700px',
+  },
+  offerItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    fontSize: '15px',
+    color: '#222',
+  },
+  offerCheck: {
+    color: '#FF385C',
+    fontWeight: '700',
+    fontSize: '16px',
+  },
+  calendarRow: {
+    display: 'flex',
+    gap: '16px',
+    marginBottom: '32px',
+    flexWrap: 'wrap',
+  },
+  calendarBox: {
+    border: '1px solid #ddd',
+    borderRadius: '12px',
+    padding: '16px 20px',
+    minWidth: '200px',
+  },
+  calLabel: {
+    display: 'block',
+    fontSize: '11px',
+    fontWeight: '700',
+    color: '#222',
+    letterSpacing: '0.5px',
+    marginBottom: '8px',
+  },
+  calInput: {
+    border: 'none',
+    outline: 'none',
+    fontSize: '15px',
+    color: '#444',
+    backgroundColor: 'transparent',
+    cursor: 'pointer',
+  },
+  reviewsGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '24px',
+    marginBottom: '32px',
+  },
+  reviewCard: {
+    padding: '0',
+  },
+  reviewHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    marginBottom: '12px',
+  },
+  reviewAvatar: {
+    width: '40px',
+    height: '40px',
+    borderRadius: '50%',
+    backgroundColor: '#717171',
+    color: '#fff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '16px',
+    fontWeight: '700',
+    flexShrink: 0,
+  },
+  reviewName: {
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#222',
+    marginBottom: '2px',
+  },
+  reviewDate: {
+    fontSize: '13px',
+    color: '#717171',
+  },
+  reviewText: {
+    fontSize: '14px',
+    color: '#444',
+    lineHeight: '1.6',
+  },
+  hostRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '20px',
+    marginBottom: '20px',
+  },
+  hostAvatar: {
+    width: '64px',
+    height: '64px',
+    borderRadius: '50%',
+    backgroundColor: '#222',
+    color: '#fff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '26px',
+    fontWeight: '700',
+    flexShrink: 0,
+  },
+  hostName: {
+    fontSize: '22px',
+    fontWeight: '700',
+    color: '#222',
+    marginBottom: '8px',
+  },
+  hostBadges: {
+    display: 'flex',
+    gap: '12px',
+    flexWrap: 'wrap',
+  },
+  hostBadge: {
+    fontSize: '13px',
+    fontWeight: '600',
+    color: '#717171',
+  },
+  hostBio: {
+    fontSize: '15px',
+    color: '#444',
+    lineHeight: '1.7',
+    maxWidth: '640px',
+    marginBottom: '24px',
+  },
+  contactHostBtn: {
+    padding: '12px 24px',
+    backgroundColor: '#222',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '10px',
+    fontSize: '15px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    marginBottom: '40px',
   },
 };
 

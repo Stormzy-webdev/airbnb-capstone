@@ -1,6 +1,9 @@
+// Handles bookings — guests can make reservations, hosts can view and cancel them
+
 const Reservation = require('../models/Reservation');
 
-// POST /api/reservations - create a reservation
+// POST /api/reservations — Guest books a listing
+// Requires: accommodation ID, check-in/out dates, guest count, total price, host ID
 const createReservation = async (req, res) => {
   const { accommodation, checkIn, checkOut, guests, totalPrice, host_id } = req.body;
 
@@ -15,13 +18,14 @@ const createReservation = async (req, res) => {
     guests,
     totalPrice,
     host_id,
-    user: req.user.id,
+    user: req.user.id, // Taken from the JWT token — the logged-in guest
   });
 
   res.status(201).json(reservation);
 };
 
-// GET /api/reservations/host - get all reservations for the logged-in host
+// GET /api/reservations/host — Host sees all bookings for their properties
+// populate() fetches the listing title/location and the guest's username in one go
 const getReservationsByHost = async (req, res) => {
   const reservations = await Reservation.find({ host_id: req.user.id })
     .populate('accommodation', 'title location price images')
@@ -30,7 +34,7 @@ const getReservationsByHost = async (req, res) => {
   res.json(reservations);
 };
 
-// GET /api/reservations/user - get all reservations for the logged-in user
+// GET /api/reservations/user — Guest sees their own booking history
 const getReservationsByUser = async (req, res) => {
   const reservations = await Reservation.find({ user: req.user.id })
     .populate('accommodation', 'title location price images')
@@ -39,7 +43,7 @@ const getReservationsByUser = async (req, res) => {
   res.json(reservations);
 };
 
-// DELETE /api/reservations/:id - delete a reservation
+// DELETE /api/reservations/:id — Cancel a reservation
 const deleteReservation = async (req, res) => {
   const reservation = await Reservation.findById(req.params.id);
 

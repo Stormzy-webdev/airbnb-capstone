@@ -1,7 +1,10 @@
+// Handles signing up and logging in — passwords get hashed automatically, and a token is returned on success
+
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Generate a JWT token for a user
+// Creates a signed JWT token containing the user's id and role
+// Token expires after 7 days — after that the user must log in again
 const generateToken = (user) => {
   return jwt.sign(
     { id: user._id, role: user.role },
@@ -10,7 +13,7 @@ const generateToken = (user) => {
   );
 };
 
-// POST /api/users/register
+// POST /api/users/register — Create a new user account
 const registerUser = async (req, res) => {
   const { username, email, password, role } = req.body;
 
@@ -18,11 +21,13 @@ const registerUser = async (req, res) => {
     return res.status(400).json({ message: 'Please fill in all fields' });
   }
 
+  // Prevent duplicate accounts with the same email
   const userExists = await User.findOne({ email });
   if (userExists) {
     return res.status(400).json({ message: 'Email already in use' });
   }
 
+  // Password is hashed inside the User model before saving to MongoDB
   const user = await User.create({ username, email, password, role });
 
   res.status(201).json({
@@ -34,7 +39,7 @@ const registerUser = async (req, res) => {
   });
 };
 
-// POST /api/users/login
+// POST /api/users/login — Log in with email and password
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -44,6 +49,7 @@ const loginUser = async (req, res) => {
 
   const user = await User.findOne({ email });
 
+  // matchPassword uses bcrypt.compare to check the plain text against the hash
   if (!user || !(await user.matchPassword(password))) {
     return res.status(401).json({ message: 'Invalid email or password' });
   }

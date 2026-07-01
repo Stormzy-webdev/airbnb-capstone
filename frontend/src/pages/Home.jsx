@@ -1,3 +1,5 @@
+// Home page — shows all listings, handles search/filter by location, and displays the static sections below
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';

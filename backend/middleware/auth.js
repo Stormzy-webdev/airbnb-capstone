@@ -1,3 +1,6 @@
+// Checks that the user is logged in before letting them hit protected routes
+// It reads the JWT token from the request header and blocks anyone without a valid one
+
 const jwt = require('jsonwebtoken');
 
 const protect = (req, res, next) => {
@@ -18,7 +21,7 @@ const protect = (req, res, next) => {
     // Attach the user info to the request so routes can use it
     req.user = decoded;
 
-    // Move on to the actual route
+    // Move on to the actual route handler
     next();
   } catch (error) {
     return res.status(401).json({ message: 'Not authorized, invalid token' });

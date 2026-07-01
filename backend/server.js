@@ -1,3 +1,5 @@
+// Main server file — starts everything up, connects to the database and registers all routes
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -5,23 +7,25 @@ require('dotenv').config();
 
 const app = express();
 
-// Allow the React frontend to talk to this server
+// Allow both React apps (admin dashboard + frontend) to make requests to this server
 app.use(cors());
 
-// Parse incoming JSON request bodies
+// Parse incoming JSON so we can read req.body in our controllers
 app.use(express.json());
 
-// Serve static files (images) from the public folder
+// Serve uploaded listing images and the Airbnb logo from the /public folder
+// Any file in /public is accessible at http://localhost:5000/images/filename.jpg
 app.use('/images', express.static('public'));
 
-// Routes (we'll uncomment these as we build each one)
-app.use('/api/users', require('./routes/userRoutes'));
-app.use('/api/accommodations', require('./routes/accommodationRoutes'));
-app.use('/api/reservations', require('./routes/reservationRoutes'));
+// API Routes — each file handles a different part of the app
+app.use('/api/users', require('./routes/userRoutes'));               // Register & Login
+app.use('/api/accommodations', require('./routes/accommodationRoutes')); // Listings CRUD
+app.use('/api/reservations', require('./routes/reservationRoutes')); // Booking system
 
+// MongoDB Atlas connection using direct shard hostnames (avoids SRV DNS issues)
+// Credentials are stored in .env so they are never exposed in the code
 const mongoURI = `mongodb://${process.env.MONGO_HOST}/airbnb-clone?ssl=true&replicaSet=atlas-if0syb-shard-0&authSource=admin&retryWrites=true&w=majority`;
 
-// Connect to MongoDB then start the server
 mongoose
   .connect(mongoURI, {
     user: process.env.MONGO_USER,

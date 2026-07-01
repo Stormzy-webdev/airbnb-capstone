@@ -1,3 +1,5 @@
+// Form for adding a new listing — converts comma-separated amenities and images into arrays before saving
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';

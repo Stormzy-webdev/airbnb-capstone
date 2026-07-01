@@ -1,3 +1,5 @@
+// Main admin page — shows all listings in a grid with options to create, edit or delete each one
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';

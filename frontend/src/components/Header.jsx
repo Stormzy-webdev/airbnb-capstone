@@ -1,3 +1,5 @@
+// Navbar with the Airbnb logo, a three-section search bar, and login/signup or user avatar depending on auth state
+
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';

@@ -1,3 +1,5 @@
+// Shows all bookings made on the host's listings — with guest info, dates and a cancel option
+
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
