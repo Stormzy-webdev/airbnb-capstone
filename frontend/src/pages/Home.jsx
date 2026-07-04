@@ -71,15 +71,18 @@ const Home = () => {
     <div>
       <Header onSearch={handleSearch} locations={locations} />
 
-      <div style={styles.page}>
-
-        {/* Hero banner */}
-        <div style={styles.hero}>
+      {/* Full screen hero image */}
+      <div style={styles.hero}>
+        <div style={styles.heroOverlay} />
+        <div style={styles.heroContent}>
           <h1 style={styles.heroTitle}>Find your next stay</h1>
           <p style={styles.heroSubtitle}>
             Discover unique homes, apartments and experiences around the world.
           </p>
         </div>
+      </div>
+
+      <div style={styles.page}>
 
         {/* Listings grid */}
         <h2 style={styles.sectionTitle}>All Listings</h2>
@@ -212,22 +215,38 @@ const styles = {
     margin: '0 auto',
   },
   hero: {
-    background: 'linear-gradient(135deg, #FF385C 0%, #ff6b35 100%)',
-    borderRadius: '16px',
-    padding: '60px 40px',
-    margin: '32px 0',
-    color: '#fff',
+    width: '100%',
+    height: '100vh',
+    backgroundImage: `url(${API_URL}/images/hero-image.png)`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroOverlay: {
+    position: 'absolute',
+    inset: 0,
+    backgroundColor: 'rgba(0,0,0,0.38)',
+  },
+  heroContent: {
+    position: 'relative',
     textAlign: 'center',
+    color: '#fff',
+    padding: '0 24px',
   },
   heroTitle: {
-    fontSize: '42px',
-    fontWeight: '700',
-    marginBottom: '12px',
+    fontSize: '56px',
+    fontWeight: '800',
+    marginBottom: '16px',
     color: '#fff',
+    textShadow: '0 2px 12px rgba(0,0,0,0.3)',
   },
   heroSubtitle: {
-    fontSize: '18px',
-    opacity: 0.9,
+    fontSize: '20px',
+    color: 'rgba(255,255,255,0.9)',
+    textShadow: '0 1px 6px rgba(0,0,0,0.3)',
   },
   section: {
     marginTop: '56px',
