@@ -38,6 +38,9 @@ const getaways = [
 
 const Home = () => {
   const [locations, setLocations] = useState([]);
+  const [superhostHover, setSuperhostHover] = useState(false);
+  const [expLeftHover, setExpLeftHover] = useState(false);
+  const [expRightHover, setExpRightHover] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -99,15 +102,49 @@ const Home = () => {
 
         {/* Experiences section */}
         <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>Experiences</h2>
-          <p style={styles.sectionSub}>Book activities led by local hosts</p>
-          <div style={styles.experienceRow}>
-            {experiences.map((e) => (
-              <div key={e.title} style={{ ...styles.experienceCard, backgroundColor: e.bg }}>
-                <span style={styles.experienceEmoji}>{e.emoji}</span>
-                <p style={styles.experienceTitle}>{e.title}</p>
-              </div>
-            ))}
+          <h2 style={styles.sectionTitle}>Discover Airbnb Experiences</h2>
+          <div style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
+            <img
+              src={`${API_URL}/images/discover-airbnb-experiences.png`}
+              alt="Discover Airbnb Experiences"
+              style={styles.experiencesImage}
+            />
+            <button
+              style={{ ...styles.superhostBtn, top: '202px', bottom: 'auto', left: '60px', backgroundColor: expLeftHover ? '#7B2D8B' : '#fff', color: expLeftHover ? '#fff' : '#222' }}
+              onMouseEnter={() => setExpLeftHover(true)}
+              onMouseLeave={() => setExpLeftHover(false)}
+            >
+              Experiences
+            </button>
+            <button
+              style={{ ...styles.superhostBtn, top: '202px', bottom: 'auto', left: 'auto', right: '292px', backgroundColor: expRightHover ? '#7B2D8B' : '#fff', color: expRightHover ? '#fff' : '#222' }}
+              onMouseEnter={() => setExpRightHover(true)}
+              onMouseLeave={() => setExpRightHover(false)}
+            >
+              Online Experiences
+            </button>
+          </div>
+        </section>
+
+        {/* Hosting section */}
+        <section style={styles.section}>
+          <div style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
+            <img
+              src={`${API_URL}/images/hosting-image.png`}
+              alt="Hosting"
+              style={styles.experiencesImage}
+            />
+            <button
+              style={{
+                ...styles.superhostBtn,
+                backgroundColor: superhostHover ? '#7B2D8B' : '#fff',
+                color: superhostHover ? '#fff' : '#222',
+              }}
+              onMouseEnter={() => setSuperhostHover(true)}
+              onMouseLeave={() => setSuperhostHover(false)}
+            >
+              Ask a Superhost
+            </button>
           </div>
         </section>
 
@@ -234,6 +271,9 @@ const styles = {
     fontSize: '16px',
   },
 
+
+
+
   // Listings
   grid: {
     display: 'grid',
@@ -298,6 +338,9 @@ const styles = {
     color: '#222',
   },
 
+
+
+
   // Inspiration
   destinationGrid: {
     display: 'grid',
@@ -333,26 +376,24 @@ const styles = {
     position: 'relative',
   },
 
-  // Experiences
-  experienceRow: {
-    display: 'flex',
-    gap: '16px',
-    overflowX: 'auto',
-    paddingBottom: '8px',
-  },
-  experienceCard: {
-    minWidth: '160px',
-    borderRadius: '12px',
-    padding: '24px 20px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '12px',
+  superhostBtn: {
+    position: 'absolute',
+    bottom: '65px',
+    left: '60px',
+    backgroundColor: '#fff',
+    color: '#222',
+    border: 'none',
+    borderRadius: '8px',
+    padding: '20px 24px',
+    fontSize: '15px',
+    fontWeight: '600',
     cursor: 'pointer',
-    flexShrink: 0,
   },
-  experienceEmoji: {
-    fontSize: '32px',
+  experiencesImage: {
+    width: '100%',
+    borderRadius: '16px',
+    marginTop: '16px',
+    display: 'block',
   },
   experienceTitle: {
     fontSize: '14px',
@@ -360,6 +401,9 @@ const styles = {
     color: '#222',
     textAlign: 'center',
   },
+
+
+
 
   // ShopAirbnb
   shopSection: {
