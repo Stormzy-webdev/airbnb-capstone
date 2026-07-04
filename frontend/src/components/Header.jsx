@@ -263,10 +263,7 @@ const styles = {
     justifyContent: 'space-between',
     padding: '16px 40px',
     borderBottom: '1px solid #ebebeb',
-    position: 'sticky',
-    top: 0,
     backgroundColor: '#fff',
-    zIndex: 100,
     gap: '16px',
   },
   logo: {

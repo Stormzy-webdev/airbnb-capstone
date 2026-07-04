@@ -112,7 +112,7 @@ const styles = {
     borderRadius: '12px',
     overflow: 'hidden',
     cursor: 'pointer',
-    width: '640px',
+    width: '1100px',
   },
   imageBox: {
     width: '200px',

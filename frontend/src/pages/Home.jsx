@@ -121,11 +121,6 @@ const Home = () => {
             </p>
             <button style={styles.shopBtn}>Browse the shop</button>
           </div>
-          <div style={styles.shopEmojis}>
-            <span style={styles.shopEmoji}>🛍️</span>
-            <span style={styles.shopEmoji}>🎁</span>
-            <span style={styles.shopEmoji}>🏺</span>
-          </div>
         </section>
 
         {/* Future getaways section */}
@@ -369,12 +364,15 @@ const styles = {
   // ShopAirbnb
   shopSection: {
     marginTop: '56px',
-    backgroundColor: '#f7f7f7',
     borderRadius: '16px',
     padding: '48px 40px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundImage: `url(${API_URL}/images/gift-cards-image.png)`,
+    backgroundSize: '40%',
+    backgroundPosition: 'right center',
+    backgroundRepeat: 'no-repeat',
   },
   shopContent: {
     maxWidth: '480px',
