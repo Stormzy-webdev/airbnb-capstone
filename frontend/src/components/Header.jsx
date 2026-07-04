@@ -68,16 +68,16 @@ const Header = ({ onSearch, locations = [], transparent = false }) => {
       {/* Logo */}
       <div style={styles.logo} onClick={() => navigate('/')}>
         <img
-          src={`${API_URL}/images/AirBnBLogo.jfif`}
+          src={`${API_URL}/images/Airbnb-logo.png`}
           alt="Airbnb"
-          style={{ height: '52px', objectFit: 'contain', cursor: 'pointer' }}
+          style={{ height: '100px', objectFit: 'contain', cursor: 'pointer' }}
         />
       </div>
 
       {/* Search bar */}
       <form onSubmit={handleSearch} style={styles.searchBar}>
 
-        {/* Where — with location dropdown */}
+        {/* Where , with locatrion dropdown */}
         <div style={styles.searchSection} ref={locationRef}>
           <label style={styles.searchLabel}>Where</label>
           <input
@@ -124,7 +124,7 @@ const Header = ({ onSearch, locations = [], transparent = false }) => {
 
         <div style={styles.searchDivider} />
 
-        {/* When — date picker dropdown */}
+        {/* When, date picker dropdown */}
         <div style={styles.searchSection} ref={dateRef}>
           <label style={styles.searchLabel}>When</label>
           <span
@@ -176,7 +176,7 @@ const Header = ({ onSearch, locations = [], transparent = false }) => {
 
         <div style={styles.searchDivider} />
 
-        {/* Who — guest counter dropdown */}
+        {/* Who, guest counter dropdown */}
         <div style={{ ...styles.searchSectionLast, position: 'relative' }} ref={guestRef}>
           <label style={styles.searchLabel}>Who</label>
           <span
