@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-const Header = ({ onSearch, locations = [] }) => {
+const Header = ({ onSearch, locations = [], transparent = false }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -60,7 +60,11 @@ const Header = ({ onSearch, locations = [] }) => {
   };
 
   return (
-    <header style={styles.header}>
+    <header style={{
+      ...styles.header,
+      backgroundColor: transparent ? 'transparent' : '#fff',
+      borderBottom: transparent ? 'none' : '1px solid #ebebeb',
+    }}>
       {/* Logo */}
       <div style={styles.logo} onClick={() => navigate('/')}>
         <img

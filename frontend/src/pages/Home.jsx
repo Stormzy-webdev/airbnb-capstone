@@ -69,17 +69,18 @@ const Home = () => {
 
   return (
     <div>
-      <Header onSearch={handleSearch} locations={locations} />
-
-      {/* Full screen background + contained hero card */}
+      {/* Black background section covers header + hero card */}
       <div style={styles.heroSection}>
-        <div style={styles.hero}>
-          <div style={styles.heroOverlay} />
-          <div style={styles.heroContent}>
-            <h1 style={styles.heroTitle}>Find your next stay</h1>
-            <p style={styles.heroSubtitle}>
-              Discover unique homes, apartments and experiences around the world.
-            </p>
+        <Header onSearch={handleSearch} locations={locations} transparent={true} />
+        <div style={styles.heroCenterWrapper}>
+          <div style={styles.hero}>
+            <div style={styles.heroOverlay} />
+            <div style={styles.heroContent}>
+              <h1 style={styles.heroTitle}>Find your next stay</h1>
+              <p style={styles.heroSubtitle}>
+                Discover unique homes, apartments and experiences around the world.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -223,8 +224,14 @@ const styles = {
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     display: 'flex',
+    flexDirection: 'column',
+  },
+  heroCenterWrapper: {
+    flex: 1,
+    display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    width: '100%',
   },
   hero: {
     width: '90%',
