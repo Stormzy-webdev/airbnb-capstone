@@ -37,34 +37,20 @@ const getaways = [
 ];
 
 const Home = () => {
-  const [listings, setListings] = useState([]);
-  const [filtered, setFiltered] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     axios.get(`${API_URL}/api/accommodations`)
       .then(({ data }) => {
-        setListings(data);
-        setFiltered(data);
-        // Extract unique locations from listings
         const unique = [...new Set(data.map((l) => l.location).filter(Boolean))];
         setLocations(unique);
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => {});
   }, []);
 
   const handleSearch = (query) => {
-    const q = query.toLowerCase();
-    const results = listings.filter(
-      (l) =>
-        l.title.toLowerCase().includes(q) ||
-        l.location.toLowerCase().includes(q) ||
-        l.type.toLowerCase().includes(q)
-    );
-    setFiltered(results);
+    navigate(`/listings${query ? `?q=${encodeURIComponent(query)}` : ''}`);
   };
 
   return (
@@ -86,42 +72,6 @@ const Home = () => {
       </div>
 
       <div style={styles.page}>
-
-        {/* Listings grid */}
-        <h2 style={styles.sectionTitle}>All Listings</h2>
-
-        {loading && <p style={styles.statusText}>Loading listings...</p>}
-
-        {!loading && filtered.length === 0 && (
-          <p style={styles.statusText}>No listings found.</p>
-        )}
-
-        <div style={styles.grid}>
-          {filtered.map((listing) => (
-            <div
-              key={listing._id}
-              style={styles.card}
-              onClick={() => navigate(`/listing/${listing._id}`)}
-            >
-              <div style={styles.imageBox}>
-                {listing.images && listing.images.length > 0 ? (
-                  <img src={listing.images[0]} alt={listing.title} style={styles.image} />
-                ) : (
-                  <div style={styles.noImage}>No photo</div>
-                )}
-              </div>
-              <div style={styles.cardBody}>
-                <div style={styles.cardTop}>
-                  <p style={styles.location}>{listing.location}</p>
-                  {listing.rating && <span style={styles.rating}>★ {listing.rating}</span>}
-                </div>
-                <p style={styles.cardTitle}>{listing.title}</p>
-                <p style={styles.type}>{listing.type}</p>
-                <p style={styles.price}><strong>${listing.price}</strong> / night</p>
-              </div>
-            </div>
-          ))}
-        </div>
 
         {/* Inspiration section */}
         <section style={styles.section}>
