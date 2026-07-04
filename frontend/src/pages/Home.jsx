@@ -71,14 +71,16 @@ const Home = () => {
     <div>
       <Header onSearch={handleSearch} locations={locations} />
 
-      {/* Full screen hero image */}
-      <div style={styles.hero}>
-        <div style={styles.heroOverlay} />
-        <div style={styles.heroContent}>
-          <h1 style={styles.heroTitle}>Find your next stay</h1>
-          <p style={styles.heroSubtitle}>
-            Discover unique homes, apartments and experiences around the world.
-          </p>
+      {/* Full screen background + contained hero card */}
+      <div style={styles.heroSection}>
+        <div style={styles.hero}>
+          <div style={styles.heroOverlay} />
+          <div style={styles.heroContent}>
+            <h1 style={styles.heroTitle}>Find your next stay</h1>
+            <p style={styles.heroSubtitle}>
+              Discover unique homes, apartments and experiences around the world.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -214,9 +216,21 @@ const styles = {
     maxWidth: '1200px',
     margin: '0 auto',
   },
-  hero: {
+  heroSection: {
     width: '100%',
-    height: '100vh',
+    minHeight: '100vh',
+    backgroundImage: `url(${API_URL}/images/black-image.png)`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hero: {
+    width: '90%',
+    height: '70vh',
+    margin: '32px auto',
+    borderRadius: '24px',
     backgroundImage: `url(${API_URL}/images/hero-image.png)`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
@@ -224,6 +238,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   heroOverlay: {
     position: 'absolute',
