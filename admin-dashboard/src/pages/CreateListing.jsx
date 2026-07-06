@@ -1,6 +1,4 @@
-// Form for adding a new listing — converts comma-separated amenities and images into arrays before saving
-
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -13,6 +11,26 @@ const CreateListing = () => {
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [locations, setLocations] = useState([]);
+
+  const [showCustomLocation, setShowCustomLocation] = useState(false);
+  const [previewImages, setPreviewImages] = useState([]);
+  const fileInputRef = useRef(null);
+
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    const previews = files.map((f) => URL.createObjectURL(f));
+    setPreviewImages((prev) => [...prev, ...previews]);
+    const existing = form.images ? form.images.split(',').map((i) => i.trim()).filter(Boolean) : [];
+    setForm({ ...form, images: [...existing, ...previews].join(', ') });
+  };
+
+  const removePreview = (url) => {
+    setPreviewImages((prev) => prev.filter((p) => p !== url));
+    const updated = form.images.split(',').map((i) => i.trim()).filter((i) => i !== url);
+    setForm({ ...form, images: updated.join(', ') });
+  };
 
   const [form, setForm] = useState({
     title: '',
@@ -23,28 +41,34 @@ const CreateListing = () => {
     bedrooms: '',
     bathrooms: '',
     price: '',
-    weeklyDiscount: '',
-    cleaningFee: '',
-    serviceFee: '',
-    occupancyTaxes: '',
     amenities: '',
     images: '',
+    enhancedCleaning: false,
+    selfCheckIn: false,
   });
 
+  useEffect(() => {
+    axios.get(`${API_URL}/api/accommodations`)
+      .then(({ data }) => {
+        const unique = [...new Set(data.map((l) => l.location).filter(Boolean))];
+        setLocations(unique);
+      })
+      .catch(() => {});
+  }, []);
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setForm({ ...form, [name]: type === 'checkbox' ? checked : value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
     const { title, type, location, description, guests, bedrooms, bathrooms, price } = form;
     if (!title || !type || !location || !description || !guests || !bedrooms || !bathrooms || !price) {
       setError('Please fill in all required fields');
       return;
     }
-
     try {
       setLoading(true);
       await axios.post(
@@ -55,10 +79,6 @@ const CreateListing = () => {
           bedrooms: Number(form.bedrooms),
           bathrooms: Number(form.bathrooms),
           price: Number(form.price),
-          weeklyDiscount: Number(form.weeklyDiscount) || 0,
-          cleaningFee: Number(form.cleaningFee) || 0,
-          serviceFee: Number(form.serviceFee) || 0,
-          occupancyTaxes: Number(form.occupancyTaxes) || 0,
           amenities: form.amenities ? form.amenities.split(',').map((a) => a.trim()) : [],
           images: form.images ? form.images.split(',').map((i) => i.trim()) : [],
         },
@@ -73,41 +93,194 @@ const CreateListing = () => {
   };
 
   return (
-    <div>
+    <div style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
       <Header />
-
       <div style={styles.page}>
-        <h1 style={styles.title}>Create New Listing</h1>
+        <h1 style={styles.pageTitle}>Create New Listing</h1>
 
         {error && <p style={styles.error}>{error}</p>}
 
         <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.grid}>
-            <Field label="Title *" name="title" value={form.title} onChange={handleChange} />
-            <Field label="Type *" name="type" value={form.type} onChange={handleChange} placeholder="e.g. Entire apartment" />
-            <Field label="Location *" name="location" value={form.location} onChange={handleChange} />
-            <Field label="Price per night ($) *" name="price" type="number" value={form.price} onChange={handleChange} />
-            <Field label="Guests *" name="guests" type="number" value={form.guests} onChange={handleChange} />
-            <Field label="Bedrooms *" name="bedrooms" type="number" value={form.bedrooms} onChange={handleChange} />
-            <Field label="Bathrooms *" name="bathrooms" type="number" value={form.bathrooms} onChange={handleChange} />
-            <Field label="Weekly Discount ($)" name="weeklyDiscount" type="number" value={form.weeklyDiscount} onChange={handleChange} />
-            <Field label="Cleaning Fee ($)" name="cleaningFee" type="number" value={form.cleaningFee} onChange={handleChange} />
-            <Field label="Service Fee ($)" name="serviceFee" type="number" value={form.serviceFee} onChange={handleChange} />
-            <Field label="Occupancy Taxes ($)" name="occupancyTaxes" type="number" value={form.occupancyTaxes} onChange={handleChange} />
-            <Field label="Amenities (comma separated)" name="amenities" value={form.amenities} onChange={handleChange} placeholder="wifi, kitchen, parking" />
-            <Field label="Image URLs (comma separated)" name="images" value={form.images} onChange={handleChange} placeholder="https://..." />
-          </div>
+          <div style={styles.twoCol}>
 
-          <div style={styles.fullWidth}>
-            <label style={styles.label}>Description *</label>
-            <textarea
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              rows={4}
-              style={styles.textarea}
-              placeholder="Describe the property..."
-            />
+            {/* LEFT COLUMN */}
+            <div style={styles.col}>
+
+              <div style={styles.field}>
+                <label style={styles.label}>Listing Title *</label>
+                <input
+                  type="text"
+                  name="title"
+                  value={form.title}
+                  onChange={handleChange}
+                  placeholder="e.g. Cozy Cape Town Apartment"
+                  style={styles.input}
+                />
+              </div>
+
+              <div style={styles.field}>
+                <label style={styles.label}>Location *</label>
+                <select
+                  name="location"
+                  value={showCustomLocation ? 'other' : form.location}
+                  onChange={(e) => {
+                    if (e.target.value === 'other') {
+                      setShowCustomLocation(true);
+                      setForm({ ...form, location: '' });
+                    } else {
+                      setShowCustomLocation(false);
+                      setForm({ ...form, location: e.target.value });
+                    }
+                  }}
+                  style={styles.select}
+                >
+                  <option value="">Select a location</option>
+                  {locations.map((loc) => (
+                    <option key={loc} value={loc}>{loc}</option>
+                  ))}
+                  <option value="other">Other</option>
+                </select>
+                {showCustomLocation && (
+                  <input
+                    type="text"
+                    placeholder="Enter new location"
+                    value={form.location}
+                    onChange={(e) => setForm({ ...form, location: e.target.value })}
+                    style={{ ...styles.input, marginTop: '8px' }}
+                  />
+                )}
+              </div>
+
+              <div style={styles.field}>
+                <label style={styles.label}>Description *</label>
+                <textarea
+                  name="description"
+                  value={form.description}
+                  onChange={handleChange}
+                  rows={5}
+                  placeholder="Describe the property..."
+                  style={styles.textarea}
+                />
+              </div>
+
+              <div style={styles.checkboxRow}>
+                <label style={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    name="enhancedCleaning"
+                    checked={form.enhancedCleaning}
+                    onChange={handleChange}
+                    style={styles.checkbox}
+                  />
+                  Enhanced Cleaning
+                </label>
+                <label style={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    name="selfCheckIn"
+                    checked={form.selfCheckIn}
+                    onChange={handleChange}
+                    style={styles.checkbox}
+                  />
+                  Self Check-in
+                </label>
+              </div>
+
+              <div style={styles.field}>
+                <label style={styles.label}>Amenities (comma separated)</label>
+                <input
+                  type="text"
+                  name="amenities"
+                  value={form.amenities}
+                  onChange={handleChange}
+                  placeholder="wifi, kitchen, parking"
+                  style={styles.input}
+                />
+              </div>
+
+            </div>
+
+            {/* RIGHT COLUMN */}
+            <div style={styles.col}>
+
+              <div style={styles.inlineRow}>
+                <div style={{ ...styles.field, flex: 1 }}>
+                  <label style={styles.label}>Price per night ($) *</label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={form.price}
+                    onChange={handleChange}
+                    style={styles.input}
+                  />
+                </div>
+                <div style={{ ...styles.field, flex: 1 }}>
+                  <label style={styles.label}>Type *</label>
+                  <select name="type" value={form.type} onChange={handleChange} style={styles.select}>
+                    <option value="">Select type</option>
+                    <option value="Entire unit">Entire unit</option>
+                    <option value="Room">Room</option>
+                    <option value="Whole Villa">Whole Villa</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={styles.inlineRow}>
+                <div style={{ ...styles.field, flex: 1 }}>
+                  <label style={styles.label}>Guests *</label>
+                  <input type="number" name="guests" value={form.guests} onChange={handleChange} style={styles.input} />
+                </div>
+                <div style={{ ...styles.field, flex: 1 }}>
+                  <label style={styles.label}>Bedrooms *</label>
+                  <input type="number" name="bedrooms" value={form.bedrooms} onChange={handleChange} style={styles.input} />
+                </div>
+                <div style={{ ...styles.field, flex: 1 }}>
+                  <label style={styles.label}>Bathrooms *</label>
+                  <input type="number" name="bathrooms" value={form.bathrooms} onChange={handleChange} style={styles.input} />
+                </div>
+              </div>
+
+              <div style={styles.field}>
+                <label style={styles.label}>Photos</label>
+                <div style={styles.uploadBox}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    ref={fileInputRef}
+                    onChange={handleFileSelect}
+                    style={{ display: 'none' }}
+                  />
+                  <button
+                    type="button"
+                    style={styles.uploadBtn}
+                    onClick={() => fileInputRef.current.click()}
+                  >
+                    + Upload Images
+                  </button>
+
+                  {previewImages.length > 0 ? (
+                    <div style={styles.previewGrid}>
+                      {previewImages.map((url) => (
+                        <div key={url} style={styles.previewItem}>
+                          <img src={url} alt="preview" style={styles.previewImg} />
+                          <button
+                            type="button"
+                            style={styles.removeBtn}
+                            onClick={() => removePreview(url)}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p style={styles.uploadHint}>No images uploaded yet</p>
+                  )}
+                </div>
+              </div>
+
+            </div>
           </div>
 
           <div style={styles.buttons}>
@@ -124,29 +297,15 @@ const CreateListing = () => {
   );
 };
 
-// Small reusable input field component
-const Field = ({ label, name, value, onChange, type = 'text', placeholder }) => (
-  <div style={styles.field}>
-    <label style={styles.label}>{label}</label>
-    <input
-      type={type}
-      name={name}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      style={styles.input}
-    />
-  </div>
-);
-
 const styles = {
   page: {
     padding: '32px 40px',
-    maxWidth: '900px',
+    maxWidth: '1100px',
     margin: '0 auto',
   },
-  title: {
+  pageTitle: {
     fontSize: '26px',
+    fontWeight: '700',
     color: '#222',
     marginBottom: '24px',
   },
@@ -156,40 +315,79 @@ const styles = {
     borderRadius: '12px',
     boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
   },
-  grid: {
+  twoCol: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
+    gap: '40px',
+    marginBottom: '24px',
+  },
+  col: {
+    display: 'flex',
+    flexDirection: 'column',
     gap: '20px',
-    marginBottom: '20px',
   },
   field: {
     display: 'flex',
     flexDirection: 'column',
     gap: '6px',
   },
-  fullWidth: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px',
-    marginBottom: '24px',
-  },
   label: {
     fontSize: '14px',
     fontWeight: '600',
-    color: '#444',
+    color: '#222',
   },
   input: {
     padding: '10px 14px',
     borderRadius: '8px',
     border: '1px solid #ddd',
     fontSize: '15px',
+    color: '#222',
+    backgroundColor: '#fff',
+    outline: 'none',
+  },
+  select: {
+    padding: '10px 14px',
+    borderRadius: '8px',
+    border: '1px solid #ddd',
+    fontSize: '15px',
+    color: '#222',
+    backgroundColor: '#fff',
+    outline: 'none',
+    cursor: 'pointer',
   },
   textarea: {
     padding: '10px 14px',
     borderRadius: '8px',
     border: '1px solid #ddd',
     fontSize: '15px',
+    color: '#222',
+    backgroundColor: '#fff',
     resize: 'vertical',
+    outline: 'none',
+  },
+  checkboxRow: {
+    display: 'flex',
+    gap: '24px',
+    alignItems: 'center',
+  },
+  checkboxLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#222',
+    cursor: 'pointer',
+  },
+  checkbox: {
+    width: '16px',
+    height: '16px',
+    cursor: 'pointer',
+    accentColor: '#FF385C',
+  },
+  inlineRow: {
+    display: 'flex',
+    gap: '16px',
   },
   buttons: {
     display: 'flex',
@@ -214,6 +412,68 @@ const styles = {
     fontSize: '15px',
     fontWeight: '600',
     cursor: 'pointer',
+  },
+  uploadBox: {
+    border: '1px solid #ddd',
+    borderRadius: '8px',
+    padding: '16px',
+    backgroundColor: '#fafafa',
+    minHeight: '160px',
+    position: 'relative',
+  },
+  uploadBtn: {
+    position: 'absolute',
+    top: '12px',
+    left: '12px',
+    padding: '8px 16px',
+    backgroundColor: '#fff',
+    color: '#222',
+    border: '1px solid #d0d0d0',
+    borderRadius: '20px',
+    fontSize: '13px',
+    fontWeight: '600',
+    cursor: 'pointer',
+  },
+  uploadHint: {
+    color: '#aaa',
+    fontSize: '14px',
+    textAlign: 'center',
+    marginTop: '48px',
+  },
+  previewGrid: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '10px',
+    marginTop: '48px',
+  },
+  previewItem: {
+    position: 'relative',
+    width: '80px',
+    height: '80px',
+  },
+  previewImg: {
+    width: '80px',
+    height: '80px',
+    objectFit: 'cover',
+    borderRadius: '8px',
+    border: '1px solid #ddd',
+  },
+  removeBtn: {
+    position: 'absolute',
+    top: '-6px',
+    right: '-6px',
+    width: '20px',
+    height: '20px',
+    borderRadius: '50%',
+    backgroundColor: '#FF385C',
+    color: '#fff',
+    border: 'none',
+    fontSize: '14px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    lineHeight: 1,
   },
   error: {
     color: '#FF385C',

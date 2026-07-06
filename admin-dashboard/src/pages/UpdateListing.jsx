@@ -175,8 +175,6 @@ const Field = ({ label, name, value, onChange, type = 'text', placeholder }) => 
 const styles = {
   page: {
     padding: '32px 40px',
-    maxWidth: '900px',
-    margin: '0 auto',
   },
   title: {
     fontSize: '26px',

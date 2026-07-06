@@ -1,4 +1,4 @@
-// Shows all bookings made on the host's listings — with guest info, dates and a cancel option
+// Shows all bookings made on the host's listings 
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -104,8 +104,6 @@ const Reservations = () => {
 const styles = {
   page: {
     padding: '32px 40px',
-    maxWidth: '1100px',
-    margin: '0 auto',
   },
   title: {
     fontSize: '26px',
