@@ -50,13 +50,15 @@ const Listings = () => {
       <div style={styles.page}>
         {/* Page header */}
         <div style={styles.topBar}>
+          <div style={styles.actionBtns}>
+            <button style={styles.actionBtn} onClick={() => navigate('/create')}>Create a new listing</button>
+            <button style={styles.actionBtn} onClick={() => navigate('/reservations')}>View Reservations</button>
+            <button style={styles.actionBtn} onClick={() => navigate('/')}>View Listings</button>
+          </div>
           <div>
             <h1 style={styles.title}>My Listings</h1>
             <p style={styles.subtitle}>{listings.length} propert{listings.length === 1 ? 'y' : 'ies'} listed</p>
           </div>
-          <button style={styles.createBtn} onClick={() => navigate('/create')}>
-            + New Listing
-          </button>
         </div>
 
         {loading && (
@@ -139,9 +141,23 @@ const styles = {
   },
   topBar: {
     display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: 'column',
+    gap: '20px',
     marginBottom: '32px',
+  },
+  actionBtns: {
+    display: 'flex',
+    gap: '12px',
+  },
+  actionBtn: {
+    padding: '12px 22px',
+    backgroundColor: '#fff',
+    color: '#222',
+    border: '1px solid #d0d0d0',
+    borderRadius: '20px',
+    fontSize: '15px',
+    fontWeight: '600',
+    cursor: 'pointer',
   },
   title: {
     fontSize: '28px',

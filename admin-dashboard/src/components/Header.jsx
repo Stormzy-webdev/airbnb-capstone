@@ -6,9 +6,9 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const AirbnbLogo = () => (
   <img
-    src={`${API_URL}/images/AirBnBLogo.jfif`}
+    src={`${API_URL}/images/Airbnb-logo.png`}
     alt="Airbnb"
-    style={{ height: '52px', objectFit: 'contain' }}
+    style={{ height: '100px', objectFit: 'contain' }}
   />
 );
 
