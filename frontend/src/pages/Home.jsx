@@ -14,10 +14,7 @@ const destinations = [
   { name: 'Johannesburg', country: 'South Africa', image: 'joburg-inspo.jpg' },
   { name: 'Durban', country: 'South Africa', image: 'durban-inspo.jpg' },
   { name: 'Pretoria', country: 'South Africa', image: 'pretoria-inspo.jpg' },
-  { name: 'George', country: 'South Africa', image: 'george-inspo.jpg' },
   { name: 'Knysna', country: 'South Africa', image: 'knysna-inspo.jpg' },
-  { name: 'Stellenbosch', country: 'South Africa', image: 'stellenbosch-inspo.jfif' },
-  { name: 'Port Elizabeth', country: 'South Africa', image: 'portelizabeth-inspo.jpg' },
 ];
 
 const experiences = [
@@ -41,6 +38,7 @@ const Home = () => {
   const [superhostHover, setSuperhostHover] = useState(false);
   const [expLeftHover, setExpLeftHover] = useState(false);
   const [expRightHover, setExpRightHover] = useState(false);
+  const [flexibleHover, setFlexibleHover] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -70,6 +68,22 @@ const Home = () => {
                 Discover unique homes, apartments and experiences around the world.
               </p>
             </div>
+            <button
+              style={{
+                ...styles.superhostBtn,
+                position: 'absolute',
+                bottom: '78px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                borderRadius: '50px',
+                backgroundColor: flexibleHover ? '#7B2D8B' : '#fff',
+                color: flexibleHover ? '#fff' : '#222',
+              }}
+              onMouseEnter={() => setFlexibleHover(true)}
+              onMouseLeave={() => setFlexibleHover(false)}
+            >
+              I'm flexible
+            </button>
           </div>
         </div>
       </div>
@@ -81,24 +95,23 @@ const Home = () => {
           <h2 style={styles.sectionTitle}>Inspiration for your next trip</h2>
           <div style={styles.destinationGrid}>
             {destinations.map((d) => (
-              <div
-                key={d.name}
-                style={{
-                  ...styles.destinationCard,
-                  backgroundImage: `url(${API_URL}/images/${encodeURIComponent(d.image)})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
-              >
-                <div style={styles.destOverlay} />
-                <p style={styles.destName}>{d.name}</p>
-                <p style={styles.destCountry}>{d.country}</p>
+              <div key={d.name} style={styles.destinationCard}>
+                <div
+                  style={{
+                    ...styles.destImageBox,
+                    backgroundImage: `url(${API_URL}/images/${encodeURIComponent(d.image)})`,
+                  }}
+                />
+                <div style={styles.destInfo}>
+                  <p style={styles.destName}>{d.name}</p>
+                  <p style={styles.destCountry}>{d.country}</p>
+                </div>
               </div>
             ))}
           </div>
         </section>
+
+
 
         {/* Experiences section */}
         <section style={styles.section}>
@@ -110,14 +123,14 @@ const Home = () => {
               style={styles.experiencesImage}
             />
             <button
-              style={{ ...styles.superhostBtn, top: '202px', bottom: 'auto', left: '60px', backgroundColor: expLeftHover ? '#7B2D8B' : '#fff', color: expLeftHover ? '#fff' : '#222' }}
+              style={{ ...styles.superhostBtn, top: '321px', bottom: 'auto', left: '80px', padding: '28px 54px', fontSize: '22px', backgroundColor: expLeftHover ? '#7B2D8B' : '#fff', color: expLeftHover ? '#fff' : '#222' }}
               onMouseEnter={() => setExpLeftHover(true)}
               onMouseLeave={() => setExpLeftHover(false)}
             >
               Experiences
             </button>
             <button
-              style={{ ...styles.superhostBtn, top: '202px', bottom: 'auto', left: 'auto', right: '292px', backgroundColor: expRightHover ? '#7B2D8B' : '#fff', color: expRightHover ? '#fff' : '#222' }}
+              style={{ ...styles.superhostBtn, top: '321px', bottom: 'auto', left: 'auto', right: '475px', padding: '28px 54px', fontSize: '22px', backgroundColor: expRightHover ? '#7B2D8B' : '#fff', color: expRightHover ? '#fff' : '#222' }}
               onMouseEnter={() => setExpRightHover(true)}
               onMouseLeave={() => setExpRightHover(false)}
             >
@@ -125,6 +138,8 @@ const Home = () => {
             </button>
           </div>
         </section>
+
+
 
         {/* Hosting section */}
         <section style={styles.section}>
@@ -137,6 +152,10 @@ const Home = () => {
             <button
               style={{
                 ...styles.superhostBtn,
+                bottom: '113px',
+                left: '80px',
+                padding: '28px 54px',
+                fontSize: '22px',
                 backgroundColor: superhostHover ? '#7B2D8B' : '#fff',
                 color: superhostHover ? '#fff' : '#222',
               }}
@@ -196,8 +215,6 @@ const Home = () => {
 const styles = {
   page: {
     padding: '0 40px',
-    maxWidth: '1200px',
-    margin: '0 auto',
   },
   heroSection: {
     width: '100%',
@@ -344,36 +361,33 @@ const styles = {
   // Inspiration
   destinationGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
+    gridTemplateColumns: 'repeat(5, 1fr)',
     gap: '16px',
     marginTop: '24px',
   },
   destinationCard: {
     borderRadius: '12px',
-    padding: '24px 20px',
+    overflow: 'hidden',
     cursor: 'pointer',
-    minHeight: '120px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
   },
-  destOverlay: {
-    position: 'absolute',
-    inset: 0,
-    background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 60%, transparent 100%)',
-    borderRadius: '12px',
+  destImageBox: {
+    height: '180px',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+  },
+  destInfo: {
+    backgroundColor: '#FF5A5F',
+    padding: '12px 16px',
   },
   destName: {
-    fontSize: '16px',
+    fontSize: '15px',
     fontWeight: '700',
     color: '#fff',
-    marginBottom: '4px',
-    position: 'relative',
+    marginBottom: '2px',
   },
   destCountry: {
-    fontSize: '14px',
+    fontSize: '13px',
     color: 'rgba(255,255,255,0.85)',
-    position: 'relative',
   },
 
   superhostBtn: {
@@ -384,8 +398,8 @@ const styles = {
     color: '#222',
     border: 'none',
     borderRadius: '8px',
-    padding: '20px 24px',
-    fontSize: '15px',
+    padding: '20px 36px',
+    fontSize: '17px',
     fontWeight: '600',
     cursor: 'pointer',
   },
