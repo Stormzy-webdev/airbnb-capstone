@@ -22,7 +22,6 @@ const Header = ({ onSearch, locations = [], transparent = false }) => {
   const dateRef = useRef(null);
   const guestRef = useRef(null);
 
-  // Close all dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (locationRef.current && !locationRef.current.contains(e.target)) setLocationOpen(false);
@@ -59,199 +58,176 @@ const Header = ({ onSearch, locations = [], transparent = false }) => {
     navigate('/');
   };
 
+  const logoEl = (
+    <div style={styles.logo} onClick={() => navigate('/')}>
+      <img
+        src={`${API_URL}/images/Airbnb-logo.png`}
+        alt="Airbnb"
+        style={{ height: '100px', objectFit: 'contain', cursor: 'pointer' }}
+      />
+    </div>
+  );
+
+  const authEl = (
+    <div style={styles.authArea}>
+      {user ? (
+        <div style={{ position: 'relative' }}>
+          <button style={transparent ? styles.avatarBtnTransparent : styles.avatarBtn} onClick={() => setDropdownOpen(!dropdownOpen)}>
+            <span style={{ ...styles.hamburger, color: transparent ? '#fff' : '#222' }}>≡</span>
+            <span style={styles.avatar}>{user.username?.[0]?.toUpperCase()}</span>
+          </button>
+          {dropdownOpen && (
+            <div style={styles.dropdown}>
+              <p style={styles.dropdownName}>Hi, {user.username}</p>
+              <hr style={styles.divider} />
+              <button style={styles.dropdownItem} onClick={handleLogout}>Log out</button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div style={styles.authButtons}>
+          <button
+            style={transparent ? { ...styles.loginBtn, backgroundColor: 'transparent', color: '#fff', borderColor: '#fff' } : styles.loginBtn}
+            onClick={() => navigate('/login')}
+          >
+            Log in
+          </button>
+          <button
+            style={transparent ? { ...styles.signupBtn, backgroundColor: '#fff', color: '#222' } : styles.signupBtn}
+            onClick={() => navigate('/register')}
+          >
+            Sign up
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
+  const searchForm = (
+    <form onSubmit={handleSearch} style={styles.searchBar}>
+      {/* Where */}
+      <div style={styles.searchSection} ref={locationRef}>
+        <label style={styles.searchLabel}>Where</label>
+        <input
+          type="text"
+          placeholder="Search destinations"
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setLiveFilter(e.target.value); setLocationOpen(true); }}
+          onFocus={() => { setLiveFilter(''); setLocationOpen(true); }}
+          style={styles.searchInput}
+        />
+        {locationOpen && locations.length > 0 && (
+          <div style={styles.locationDropdown}>
+            <p style={styles.locationDropdownTitle}>Destinations</p>
+            <button type="button" style={styles.locationItemAll} onClick={handleShowAll}>
+              <span style={styles.locationPin}>🌍</span>
+              All locations
+            </button>
+            {locations
+              .filter((loc) => loc.toLowerCase().includes(liveFilter.toLowerCase()))
+              .map((loc) => (
+                <button key={loc} type="button" style={styles.locationItem} onClick={() => handleLocationSelect(loc)}>
+                  <span style={styles.locationPin}>📍</span>
+                  {loc}
+                </button>
+              ))}
+          </div>
+        )}
+      </div>
+
+      <div style={styles.searchDivider} />
+
+      {/* When */}
+      <div style={styles.searchSection} ref={dateRef}>
+        <label style={styles.searchLabel}>When</label>
+        <span
+          style={{ ...styles.searchPlaceholder, cursor: 'pointer' }}
+          onClick={() => { setDateOpen(!dateOpen); setLocationOpen(false); setGuestOpen(false); }}
+        >
+          {checkIn && checkOut
+            ? `${new Date(checkIn).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – ${new Date(checkOut).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`
+            : checkIn
+            ? `${new Date(checkIn).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – Check-out`
+            : 'Add dates'}
+        </span>
+        {dateOpen && (
+          <div style={styles.dateDropdown}>
+            <p style={styles.dateDropdownTitle}>Select dates</p>
+            <div style={styles.dateFields}>
+              <div style={styles.dateField}>
+                <label style={styles.dateFieldLabel}>Check-in</label>
+                <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} style={styles.dateInput} />
+              </div>
+              <div style={styles.dateField}>
+                <label style={styles.dateFieldLabel}>Check-out</label>
+                <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} style={styles.dateInput} />
+              </div>
+            </div>
+            {checkIn && checkOut && (
+              <button type="button" style={styles.dateApplyBtn} onClick={() => setDateOpen(false)}>Apply</button>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div style={styles.searchDivider} />
+
+      {/* Who */}
+      <div style={{ ...styles.searchSectionLast, position: 'relative' }} ref={guestRef}>
+        <label style={styles.searchLabel}>Who</label>
+        <span
+          style={{ ...styles.searchPlaceholder, cursor: 'pointer' }}
+          onClick={() => { setGuestOpen(!guestOpen); setLocationOpen(false); setDateOpen(false); }}
+        >
+          {guests > 0 ? `${guests} guest${guests > 1 ? 's' : ''}` : 'Add guests'}
+        </span>
+        {guestOpen && (
+          <div style={styles.guestDropdown}>
+            <p style={styles.guestDropdownTitle}>Guests</p>
+            <div style={styles.guestRow}>
+              <div>
+                <p style={styles.guestType}>Adults</p>
+                <p style={styles.guestSub}>Ages 13 or above</p>
+              </div>
+              <div style={styles.counter}>
+                <button type="button" style={styles.counterBtn} onClick={() => setGuests(Math.max(1, guests - 1))}>−</button>
+                <span style={styles.counterNum}>{guests}</span>
+                <button type="button" style={styles.counterBtn} onClick={() => setGuests(guests + 1)}>+</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <button type="submit" style={styles.searchBtn}>
+        <svg viewBox="0 0 32 32" width="14" height="14" fill="white">
+          <path d="M13 2a11 11 0 1 0 7.16 19.245l6.548 6.549 1.414-1.414-6.548-6.55A11 11 0 0 0 13 2zm0 2a9 9 0 1 1 0 18A9 9 0 0 1 13 4z" />
+        </svg>
+      </button>
+    </form>
+  );
+
   return (
     <header style={{
       ...styles.header,
       backgroundColor: transparent ? 'transparent' : '#fff',
       borderBottom: transparent ? 'none' : '1px solid #ebebeb',
     }}>
-      {/* Logo */}
-      <div style={styles.logo} onClick={() => navigate('/')}>
-        <img
-          src={`${API_URL}/images/Airbnb-logo.png`}
-          alt="Airbnb"
-          style={{ height: '100px', objectFit: 'contain', cursor: 'pointer' }}
-        />
-      </div>
+      {logoEl}
 
-      {/* Search bar */}
-      <form onSubmit={handleSearch} style={styles.searchBar}>
-
-        {/* Where , with locatrion dropdown */}
-        <div style={styles.searchSection} ref={locationRef}>
-          <label style={styles.searchLabel}>Where</label>
-          <input
-            type="text"
-            placeholder="Search destinations"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setLiveFilter(e.target.value);
-              setLocationOpen(true);
-            }}
-            onFocus={() => {
-              setLiveFilter('');
-              setLocationOpen(true);
-            }}
-            style={styles.searchInput}
-          />
-
-          {locationOpen && locations.length > 0 && (
-            <div style={styles.locationDropdown}>
-              <p style={styles.locationDropdownTitle}>Destinations</p>
-
-              <button type="button" style={styles.locationItemAll} onClick={handleShowAll}>
-                <span style={styles.locationPin}>🌍</span>
-                All locations
-              </button>
-
-              {locations
-                .filter((loc) => loc.toLowerCase().includes(liveFilter.toLowerCase()))
-                .map((loc) => (
-                  <button
-                    key={loc}
-                    type="button"
-                    style={styles.locationItem}
-                    onClick={() => handleLocationSelect(loc)}
-                  >
-                    <span style={styles.locationPin}>📍</span>
-                    {loc}
-                  </button>
-                ))}
-            </div>
-          )}
-        </div>
-
-        <div style={styles.searchDivider} />
-
-        {/* When, date picker dropdown */}
-        <div style={styles.searchSection} ref={dateRef}>
-          <label style={styles.searchLabel}>When</label>
-          <span
-            style={{ ...styles.searchPlaceholder, cursor: 'pointer' }}
-            onClick={() => { setDateOpen(!dateOpen); setLocationOpen(false); setGuestOpen(false); }}
-          >
-            {checkIn && checkOut
-              ? `${new Date(checkIn).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – ${new Date(checkOut).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`
-              : checkIn
-              ? `${new Date(checkIn).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – Check-out`
-              : 'Add dates'}
-          </span>
-
-          {dateOpen && (
-            <div style={styles.dateDropdown}>
-              <p style={styles.dateDropdownTitle}>Select dates</p>
-              <div style={styles.dateFields}>
-                <div style={styles.dateField}>
-                  <label style={styles.dateFieldLabel}>Check-in</label>
-                  <input
-                    type="date"
-                    value={checkIn}
-                    onChange={(e) => setCheckIn(e.target.value)}
-                    style={styles.dateInput}
-                  />
-                </div>
-                <div style={styles.dateField}>
-                  <label style={styles.dateFieldLabel}>Check-out</label>
-                  <input
-                    type="date"
-                    value={checkOut}
-                    onChange={(e) => setCheckOut(e.target.value)}
-                    style={styles.dateInput}
-                  />
-                </div>
-              </div>
-              {checkIn && checkOut && (
-                <button
-                  type="button"
-                  style={styles.dateApplyBtn}
-                  onClick={() => setDateOpen(false)}
-                >
-                  Apply
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div style={styles.searchDivider} />
-
-        {/* Who, guest counter dropdown */}
-        <div style={{ ...styles.searchSectionLast, position: 'relative' }} ref={guestRef}>
-          <label style={styles.searchLabel}>Who</label>
-          <span
-            style={{ ...styles.searchPlaceholder, cursor: 'pointer' }}
-            onClick={() => { setGuestOpen(!guestOpen); setLocationOpen(false); setDateOpen(false); }}
-          >
-            {guests > 0 ? `${guests} guest${guests > 1 ? 's' : ''}` : 'Add guests'}
-          </span>
-
-          {guestOpen && (
-            <div style={styles.guestDropdown}>
-              <p style={styles.guestDropdownTitle}>Guests</p>
-              <div style={styles.guestRow}>
-                <div>
-                  <p style={styles.guestType}>Adults</p>
-                  <p style={styles.guestSub}>Ages 13 or above</p>
-                </div>
-                <div style={styles.counter}>
-                  <button
-                    type="button"
-                    style={styles.counterBtn}
-                    onClick={() => setGuests(Math.max(1, guests - 1))}
-                  >−</button>
-                  <span style={styles.counterNum}>{guests}</span>
-                  <button
-                    type="button"
-                    style={styles.counterBtn}
-                    onClick={() => setGuests(guests + 1)}
-                  >+</button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <button type="submit" style={styles.searchBtn}>
-          <svg viewBox="0 0 32 32" width="14" height="14" fill="white">
-            <path d="M13 2a11 11 0 1 0 7.16 19.245l6.548 6.549 1.414-1.414-6.548-6.55A11 11 0 0 0 13 2zm0 2a9 9 0 1 1 0 18A9 9 0 0 1 13 4z" />
-          </svg>
-        </button>
-      </form>
-
-      {/* Auth area */}
-      <div style={styles.authArea}>
-        {user ? (
-          <div style={{ position: 'relative' }}>
-            <button
-              style={styles.avatarBtn}
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-            >
-              <span style={styles.hamburger}>≡</span>
-              <span style={styles.avatar}>{user.username?.[0]?.toUpperCase()}</span>
-            </button>
-
-            {dropdownOpen && (
-              <div style={styles.dropdown}>
-                <p style={styles.dropdownName}>Hi, {user.username}</p>
-                <hr style={styles.divider} />
-                <button style={styles.dropdownItem} onClick={handleLogout}>
-                  Log out
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div style={styles.authButtons}>
-            <button style={styles.loginBtn} onClick={() => navigate('/login')}>
-              Log in
-            </button>
-            <button style={styles.signupBtn} onClick={() => navigate('/register')}>
-              Sign up
-            </button>
+      {/* Center: tabs (transparent only) + search bar */}
+      <div style={styles.centerCol}>
+        {transparent && (
+          <div style={styles.tabsRow}>
+            <span style={styles.tabItem}>Places to stay</span>
+            <span style={styles.tabItem}>Experiences</span>
+            <span style={styles.tabItem}>Online Experiences</span>
           </div>
         )}
+        {searchForm}
       </div>
+
+      {authEl}
     </header>
   );
 };
@@ -266,11 +242,31 @@ const styles = {
     backgroundColor: '#fff',
     gap: '16px',
   },
+  centerCol: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '60px',
+    flex: 1,
+  },
+  tabsRow: {
+    display: 'flex',
+    gap: '32px',
+    alignItems: 'center',
+  },
+  tabItem: {
+    fontSize: '15px',
+    fontWeight: '600',
+    color: '#fff',
+    cursor: 'pointer',
+  },
   logo: {
     display: 'flex',
     alignItems: 'center',
     cursor: 'pointer',
     flexShrink: 0,
+    alignSelf: 'flex-start',
+    marginTop: '-20px',
   },
   searchBar: {
     display: 'flex',
@@ -278,8 +274,7 @@ const styles = {
     border: '1px solid #ddd',
     borderRadius: '40px',
     boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-    flex: 1,
-    maxWidth: '560px',
+    width: '560px',
     backgroundColor: '#fff',
     padding: '0 4px 0 0',
     position: 'relative',
@@ -504,6 +499,7 @@ const styles = {
   },
   authArea: {
     flexShrink: 0,
+    alignSelf: 'flex-start',
   },
   authButtons: {
     display: 'flex',
@@ -538,9 +534,18 @@ const styles = {
     backgroundColor: '#fff',
     cursor: 'pointer',
   },
+  avatarBtnTransparent: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '6px 8px',
+    border: '1px solid #fff',
+    borderRadius: '20px',
+    backgroundColor: 'transparent',
+    cursor: 'pointer',
+  },
   hamburger: {
     fontSize: '18px',
-    color: '#222',
   },
   avatar: {
     width: '30px',
