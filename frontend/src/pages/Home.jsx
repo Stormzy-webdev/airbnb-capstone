@@ -1,6 +1,6 @@
 // Home page — shows all listings, handles search/filter by location, and displays the static sections below
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/Header';
@@ -26,11 +26,109 @@ const experiences = [
   { title: 'Wellness', emoji: '🧘', bg: '#F1F8E9' },
 ];
 
-const getaways = [
-  { label: 'Beach', desc: 'Sun, sand and sea', image: `${API_URL}/images/beach%20-inspo.jpg` },
-  { label: 'Mountains', desc: 'Fresh air and views', image: `${API_URL}/images/mountains%20-%20inspo.jpg` },
-  { label: 'City breaks', desc: 'Culture and nightlife', image: `${API_URL}/images/citybreaks%20-%20inspo.jpg` },
-  { label: 'Countryside', desc: 'Peace and quiet', image: `${API_URL}/images/countrylife%20-%20inspo.jpg` },
+const getawayTabs = [
+  {
+    label: 'Destinations for arts and culture',
+    places: [
+      { name: 'Eiffel Tower', location: 'Paris, France' },
+      { name: 'Louvre Museum', location: 'Paris, France' },
+      { name: 'Colosseum', location: 'Rome, Italy' },
+      { name: 'Vatican Museums', location: 'Rome, Italy' },
+      { name: 'Sagrada Familia', location: 'Barcelona, Spain' },
+      { name: 'Prado Museum', location: 'Madrid, Spain' },
+      { name: 'British Museum', location: 'London, UK' },
+      { name: 'Tate Modern', location: 'London, UK' },
+      { name: 'Rijksmuseum', location: 'Amsterdam, Netherlands' },
+      { name: 'Acropolis Museum', location: 'Athens, Greece' },
+      { name: 'Uffizi Gallery', location: 'Florence, Italy' },
+      { name: 'MoMA', location: 'New York, USA' },
+    ],
+  },
+  {
+    label: 'Destinations for outdoor adventure',
+    places: [
+      { name: 'Table Mountain', location: 'Cape Town, South Africa' },
+      { name: 'Kruger National Park', location: 'Limpopo, South Africa' },
+      { name: 'Victoria Falls', location: 'Livingstone, Zambia' },
+      { name: 'Mount Kilimanjaro', location: 'Arusha, Tanzania' },
+      { name: 'Serengeti Plains', location: 'Tanzania' },
+      { name: 'Okavango Delta', location: 'Botswana' },
+      { name: 'Fish River Canyon', location: 'Namibia' },
+      { name: 'Bwindi Forest', location: 'Uganda' },
+      { name: 'Ngorongoro Crater', location: 'Tanzania' },
+      { name: 'Drakensberg Mountains', location: 'KwaZulu-Natal, South Africa' },
+      { name: 'Sossusvlei Dunes', location: 'Namibia' },
+      { name: 'Skeleton Coast', location: 'Namibia' },
+    ],
+  },
+  {
+    label: 'Mountain cabins',
+    places: [
+      { name: 'Swiss Alps Chalet', location: 'Zermatt, Switzerland' },
+      { name: 'Rocky Mountain Lodge', location: 'Banff, Canada' },
+      { name: 'Dolomites Retreat', location: 'Cortina, Italy' },
+      { name: 'Black Forest Cabin', location: 'Baden-Baden, Germany' },
+      { name: 'Carpathian Hideaway', location: 'Sinaia, Romania' },
+      { name: 'Blue Ridge Cabin', location: 'Asheville, USA' },
+      { name: 'Bavarian Alps Lodge', location: 'Garmisch, Germany' },
+      { name: 'Pyrenees Retreat', location: 'Andorra' },
+      { name: 'Julian Alps Cabin', location: 'Bled, Slovenia' },
+      { name: 'Tatra Mountain Stay', location: 'Zakopane, Poland' },
+      { name: 'Scottish Highlands', location: 'Inverness, Scotland' },
+      { name: 'Appalachian Getaway', location: 'Vermont, USA' },
+    ],
+  },
+  {
+    label: 'Beach Destinations',
+    places: [
+      { name: 'Santorini Cliffs', location: 'Santorini, Greece' },
+      { name: 'Maldives Atoll', location: 'North Malé, Maldives' },
+      { name: 'Seminyak Beach', location: 'Bali, Indonesia' },
+      { name: 'Patong Beach', location: 'Phuket, Thailand' },
+      { name: 'Amalfi Coast', location: 'Positano, Italy' },
+      { name: 'Zanzibar Island', location: 'Tanzania' },
+      { name: 'Tulum Beach', location: 'Quintana Roo, Mexico' },
+      { name: 'La Digue Island', location: 'Seychelles' },
+      { name: 'Bora Bora Lagoon', location: 'French Polynesia' },
+      { name: 'Gold Coast', location: 'Queensland, Australia' },
+      { name: 'Algarve Coast', location: 'Faro, Portugal' },
+      { name: 'Miami South Beach', location: 'Florida, USA' },
+    ],
+  },
+  {
+    label: 'Popular Destinations',
+    places: [
+      { name: 'Eiffel Tower', location: 'Paris, France' },
+      { name: 'Times Square', location: 'New York, USA' },
+      { name: 'Big Ben', location: 'London, UK' },
+      { name: 'Burj Khalifa', location: 'Dubai, UAE' },
+      { name: 'Sydney Opera House', location: 'Sydney, Australia' },
+      { name: 'Colosseum', location: 'Rome, Italy' },
+      { name: 'Machu Picchu', location: 'Cusco, Peru' },
+      { name: 'Great Wall of China', location: 'Beijing, China' },
+      { name: 'Taj Mahal', location: 'Agra, India' },
+      { name: 'Niagara Falls', location: 'Ontario, Canada' },
+      { name: 'Angkor Wat', location: 'Siem Reap, Cambodia' },
+      { name: 'Petra', location: 'Wadi Musa, Jordan' },
+    ],
+  },
+  {
+    label: 'Unique Stays',
+    places: [
+      { name: 'Hobbit Houses', location: 'Matamata, New Zealand' },
+      { name: 'Ice Hotel', location: 'Jukkasjärvi, Sweden' },
+      { name: 'Treehouse Resort', location: 'Monteverde, Costa Rica' },
+      { name: 'Underwater Hotel', location: 'North Malé, Maldives' },
+      { name: 'Cave Hotel', location: 'Cappadocia, Turkey' },
+      { name: 'Glass Igloo', location: 'Saariselkä, Finland' },
+      { name: 'Overwater Bungalow', location: 'Bora Bora, French Polynesia' },
+      { name: 'Cliff House', location: 'Santorini, Greece' },
+      { name: 'Desert Camp', location: 'Wadi Rum, Jordan' },
+      { name: 'Lighthouse Hotel', location: 'Cape Point, South Africa' },
+      { name: 'Floating Lodge', location: 'Okavango, Botswana' },
+      { name: 'Castle Hotel', location: 'Edinburgh, Scotland' },
+    ],
+  },
 ];
 
 const Home = () => {
@@ -39,7 +137,21 @@ const Home = () => {
   const [expLeftHover, setExpLeftHover] = useState(false);
   const [expRightHover, setExpRightHover] = useState(false);
   const [flexibleHover, setFlexibleHover] = useState(false);
+  const [activeGetaway, setActiveGetaway] = useState(0);
+  const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0 });
+  const tabRefs = useRef([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const tab = tabRefs.current[0];
+    if (tab) setUnderlineStyle({ left: tab.offsetLeft, width: tab.offsetWidth });
+  }, []);
+
+  const handleTabClick = (index) => {
+    setActiveGetaway(index);
+    const tab = tabRefs.current[index];
+    if (tab) setUnderlineStyle({ left: tab.offsetLeft, width: tab.offsetWidth });
+  };
 
   useEffect(() => {
     axios.get(`${API_URL}/api/accommodations`)
@@ -182,24 +294,42 @@ const Home = () => {
         {/* Future getaways section */}
         <section style={styles.section}>
           <h2 style={styles.sectionTitle}>Plan your future getaways</h2>
-          <p style={styles.sectionSub}>Dream, explore and save your favourite spots</p>
-          <div style={styles.getawayRow}>
-            {getaways.map((g) => (
-              <div
-                key={g.label}
+
+          {/* Tabs with sliding underline */}
+          <div style={styles.getawayTabsWrapper}>
+            {getawayTabs.map((tab, i) => (
+              <span
+                key={tab.label}
+                ref={(el) => (tabRefs.current[i] = el)}
                 style={{
-                  ...styles.getawayCard,
-                  backgroundImage: g.image ? `url(${g.image})` : 'none',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  position: 'relative',
-                  overflow: 'hidden',
+                  ...styles.getawayTab,
+                  fontWeight: activeGetaway === i ? '700' : '500',
+                  color: activeGetaway === i ? '#222' : '#717171',
                 }}
+                onClick={() => handleTabClick(i)}
               >
-                {g.image && <div style={styles.getawayOverlay} />}
-                {!g.image && <span style={styles.getawayEmoji}>{g.emoji}</span>}
-                <p style={{ ...styles.getawayLabel, color: g.image ? '#fff' : '#222', position: 'relative' }}>{g.label}</p>
-                <p style={{ ...styles.getawayDesc, color: g.image ? 'rgba(255,255,255,0.85)' : '#717171', position: 'relative' }}>{g.desc}</p>
+                {tab.label}
+              </span>
+            ))}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: underlineStyle.left,
+                width: underlineStyle.width,
+                height: '2px',
+                backgroundColor: '#FF385C',
+                transition: 'left 0.3s ease, width 0.3s ease',
+              }}
+            />
+          </div>
+
+          {/* 4-column grid of 12 places */}
+          <div style={styles.getawayGrid}>
+            {getawayTabs[activeGetaway].places.map((place) => (
+              <div key={place.name} style={styles.getawayPlaceCard}>
+                <p style={styles.getawayPlaceName}>{place.name}</p>
+                <p style={styles.getawayPlaceLocation}>{place.location}</p>
               </div>
             ))}
           </div>
@@ -466,41 +596,36 @@ const styles = {
   },
 
   // Getaways
-  getawayRow: {
+  getawayTabsWrapper: {
+    position: 'relative',
+    display: 'flex',
+    gap: '32px',
+    borderBottom: '1px solid #ebebeb',
+    marginTop: '24px',
+    marginBottom: '32px',
+  },
+  getawayTab: {
+    fontSize: '14px',
+    cursor: 'pointer',
+    paddingBottom: '12px',
+    whiteSpace: 'nowrap',
+  },
+  getawayGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '16px',
-    marginTop: '24px',
+    gap: '24px',
   },
-  getawayCard: {
-    border: '1px solid #ebebeb',
-    borderRadius: '12px',
-    padding: '24px 20px',
-    textAlign: 'center',
+  getawayPlaceCard: {
     cursor: 'pointer',
-    minHeight: '160px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: '8px 0',
   },
-  getawayOverlay: {
-    position: 'absolute',
-    inset: 0,
-    background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 100%)',
-  },
-  getawayEmoji: {
-    fontSize: '36px',
-    display: 'block',
-    marginBottom: '12px',
-  },
-  getawayLabel: {
-    fontSize: '16px',
-    fontWeight: '700',
+  getawayPlaceName: {
+    fontSize: '15px',
+    fontWeight: '600',
     color: '#222',
     marginBottom: '4px',
   },
-  getawayDesc: {
+  getawayPlaceLocation: {
     fontSize: '14px',
     color: '#717171',
   },

@@ -69,7 +69,8 @@ const Header = ({ onSearch, locations = [], transparent = false }) => {
   );
 
   const authEl = (
-    <div style={styles.authArea}>
+    <div style={{ ...styles.authArea, display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <span style={{ ...styles.becomeHost, color: transparent ? '#fff' : '#222' }}>Become a Host</span>
       {user ? (
         <div style={{ position: 'relative' }}>
           <button style={transparent ? styles.avatarBtnTransparent : styles.avatarBtn} onClick={() => setDropdownOpen(!dropdownOpen)}>
@@ -253,6 +254,7 @@ const styles = {
     display: 'flex',
     gap: '32px',
     alignItems: 'center',
+    marginTop: '16px',
   },
   tabItem: {
     fontSize: '15px',
@@ -500,6 +502,12 @@ const styles = {
   authArea: {
     flexShrink: 0,
     alignSelf: 'flex-start',
+  },
+  becomeHost: {
+    fontSize: '14px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
   },
   authButtons: {
     display: 'flex',

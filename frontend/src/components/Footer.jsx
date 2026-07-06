@@ -38,6 +38,18 @@ const Footer = () => {
               <li>Airbnb.org emergency stays</li>
             </ul>
           </div>
+
+          <div style={styles.column}>
+            <h4 style={styles.heading}>Community</h4>
+            <ul style={styles.list}>
+              <li>Airbnb.org disaster relief</li>
+              <li>Support Afghan refugees</li>
+              <li>Combating discrimination</li>
+              <li>Join the LGBTQ+ community</li>
+              <li>Guest referrals</li>
+              <li>Gift Cards</li>
+            </ul>
+          </div>
         </div>
 
         <hr style={styles.divider} />
@@ -62,13 +74,11 @@ const styles = {
     marginTop: '60px',
   },
   inner: {
-    maxWidth: '1200px',
-    margin: '0 auto',
     padding: '48px 40px 24px',
   },
   columns: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
+    gridTemplateColumns: 'repeat(4, 1fr)',
     gap: '32px',
     marginBottom: '32px',
   },
