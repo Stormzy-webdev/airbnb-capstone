@@ -219,6 +219,7 @@ const styles = {
     borderRadius: '10px',
     border: '1px solid #e0e0e0',
     fontSize: '15px',
+    color: '#222',
     outline: 'none',
     transition: 'border-color 0.2s',
     backgroundColor: '#fafafa',

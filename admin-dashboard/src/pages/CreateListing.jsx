@@ -14,22 +14,24 @@ const CreateListing = () => {
   const [locations, setLocations] = useState([]);
 
   const [showCustomLocation, setShowCustomLocation] = useState(false);
-  const [previewImages, setPreviewImages] = useState([]);
   const fileInputRef = useRef(null);
 
-  const handleFileSelect = (e) => {
+  const readAsDataURL = (file) =>
+    new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(file);
+    });
+
+  const handleFileSelect = async (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
-    const previews = files.map((f) => URL.createObjectURL(f));
-    setPreviewImages((prev) => [...prev, ...previews]);
-    const existing = form.images ? form.images.split(',').map((i) => i.trim()).filter(Boolean) : [];
-    setForm({ ...form, images: [...existing, ...previews].join(', ') });
+    const dataUrls = await Promise.all(files.map(readAsDataURL));
+    setForm((prev) => ({ ...prev, images: [...prev.images, ...dataUrls] }));
   };
 
-  const removePreview = (url) => {
-    setPreviewImages((prev) => prev.filter((p) => p !== url));
-    const updated = form.images.split(',').map((i) => i.trim()).filter((i) => i !== url);
-    setForm({ ...form, images: updated.join(', ') });
+  const removePreview = (dataUrl) => {
+    setForm((prev) => ({ ...prev, images: prev.images.filter((i) => i !== dataUrl) }));
   };
 
   const [form, setForm] = useState({
@@ -42,7 +44,7 @@ const CreateListing = () => {
     bathrooms: '',
     price: '',
     amenities: '',
-    images: '',
+    images: [],
     enhancedCleaning: false,
     selfCheckIn: false,
   });
@@ -80,7 +82,6 @@ const CreateListing = () => {
           bathrooms: Number(form.bathrooms),
           price: Number(form.price),
           amenities: form.amenities ? form.amenities.split(',').map((a) => a.trim()) : [],
-          images: form.images ? form.images.split(',').map((i) => i.trim()) : [],
         },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
@@ -259,15 +260,15 @@ const CreateListing = () => {
                     + Upload Images
                   </button>
 
-                  {previewImages.length > 0 ? (
+                  {form.images.length > 0 ? (
                     <div style={styles.previewGrid}>
-                      {previewImages.map((url) => (
-                        <div key={url} style={styles.previewItem}>
-                          <img src={url} alt="preview" style={styles.previewImg} />
+                      {form.images.map((dataUrl, index) => (
+                        <div key={index} style={styles.previewItem}>
+                          <img src={dataUrl} alt="preview" style={styles.previewImg} />
                           <button
                             type="button"
                             style={styles.removeBtn}
-                            onClick={() => removePreview(url)}
+                            onClick={() => removePreview(dataUrl)}
                           >
                             ×
                           </button>

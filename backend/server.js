@@ -11,7 +11,8 @@ const app = express();
 app.use(cors());
 
 // Parse incoming JSON so we can read req.body in our controllers
-app.use(express.json());
+// Raised limit (default is 100kb) since listing photos are sent as base64 in the JSON body
+app.use(express.json({ limit: '25mb' }));
 
 // Serve uploaded listing images and the Airbnb logo from the /public folder
 // Any file in /public is accessible at http://localhost:5000/images/filename.jpg
