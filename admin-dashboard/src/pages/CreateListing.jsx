@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
+import { uploadToCloudinary } from '../utils/cloudinary';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -14,24 +15,25 @@ const CreateListing = () => {
   const [locations, setLocations] = useState([]);
 
   const [showCustomLocation, setShowCustomLocation] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
-
-  const readAsDataURL = (file) =>
-    new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.readAsDataURL(file);
-    });
 
   const handleFileSelect = async (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
-    const dataUrls = await Promise.all(files.map(readAsDataURL));
-    setForm((prev) => ({ ...prev, images: [...prev.images, ...dataUrls] }));
+    setUploading(true);
+    try {
+      const urls = await Promise.all(files.map(uploadToCloudinary));
+      setForm((prev) => ({ ...prev, images: [...prev.images, ...urls] }));
+    } catch (err) {
+      setError('Failed to upload one or more images');
+    } finally {
+      setUploading(false);
+    }
   };
 
-  const removePreview = (dataUrl) => {
-    setForm((prev) => ({ ...prev, images: prev.images.filter((i) => i !== dataUrl) }));
+  const removePreview = (url) => {
+    setForm((prev) => ({ ...prev, images: prev.images.filter((i) => i !== url) }));
   };
 
   const [form, setForm] = useState({
@@ -256,19 +258,20 @@ const CreateListing = () => {
                     type="button"
                     style={styles.uploadBtn}
                     onClick={() => fileInputRef.current.click()}
+                    disabled={uploading}
                   >
-                    + Upload Images
+                    {uploading ? 'Uploading...' : '+ Upload Images'}
                   </button>
 
                   {form.images.length > 0 ? (
                     <div style={styles.previewGrid}>
-                      {form.images.map((dataUrl, index) => (
+                      {form.images.map((url, index) => (
                         <div key={index} style={styles.previewItem}>
-                          <img src={dataUrl} alt="preview" style={styles.previewImg} />
+                          <img src={url} alt="preview" style={styles.previewImg} />
                           <button
                             type="button"
                             style={styles.removeBtn}
-                            onClick={() => removePreview(dataUrl)}
+                            onClick={() => removePreview(url)}
                           >
                             ×
                           </button>
@@ -288,7 +291,7 @@ const CreateListing = () => {
             <button type="button" style={styles.cancelBtn} onClick={() => navigate('/')}>
               Cancel
             </button>
-            <button type="submit" style={styles.submitBtn} disabled={loading}>
+            <button type="submit" style={styles.submitBtn} disabled={loading || uploading}>
               {loading ? 'Creating...' : 'Create Listing'}
             </button>
           </div>

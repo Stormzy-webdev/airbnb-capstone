@@ -1,10 +1,11 @@
 // Edit form for an existing listing — loads the current data, lets the host make changes, then saves them
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
+import { uploadToCloudinary } from '../utils/cloudinary';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -15,6 +16,8 @@ const UpdateListing = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   const [form, setForm] = useState({
     title: '',
@@ -30,8 +33,26 @@ const UpdateListing = () => {
     serviceFee: '',
     occupancyTaxes: '',
     amenities: '',
-    images: '',
+    images: [],
   });
+
+  const handleFileSelect = async (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    setUploading(true);
+    try {
+      const urls = await Promise.all(files.map(uploadToCloudinary));
+      setForm((prev) => ({ ...prev, images: [...prev.images, ...urls] }));
+    } catch (err) {
+      setError('Failed to upload one or more images');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeImage = (url) => {
+    setForm((prev) => ({ ...prev, images: prev.images.filter((i) => i !== url) }));
+  };
 
   // Load the existing listing data when the page opens
   useEffect(() => {
@@ -52,7 +73,7 @@ const UpdateListing = () => {
           serviceFee: data.serviceFee || '',
           occupancyTaxes: data.occupancyTaxes || '',
           amenities: data.amenities ? data.amenities.join(', ') : '',
-          images: data.images ? data.images.join(', ') : '',
+          images: data.images || [],
         });
       } catch (err) {
         setError('Failed to load listing');
@@ -93,7 +114,6 @@ const UpdateListing = () => {
           serviceFee: Number(form.serviceFee) || 0,
           occupancyTaxes: Number(form.occupancyTaxes) || 0,
           amenities: form.amenities ? form.amenities.split(',').map((a) => a.trim()) : [],
-          images: form.images ? form.images.split(',').map((i) => i.trim()) : [],
         },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
@@ -130,7 +150,43 @@ const UpdateListing = () => {
             <Field label="Service Fee ($)" name="serviceFee" type="number" value={form.serviceFee} onChange={handleChange} />
             <Field label="Occupancy Taxes ($)" name="occupancyTaxes" type="number" value={form.occupancyTaxes} onChange={handleChange} />
             <Field label="Amenities (comma separated)" name="amenities" value={form.amenities} onChange={handleChange} />
-            <Field label="Image URLs (comma separated)" name="images" value={form.images} onChange={handleChange} />
+          </div>
+
+          <div style={styles.fullWidth}>
+            <label style={styles.label}>Photos</label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              style={{ display: 'none' }}
+            />
+            <button
+              type="button"
+              style={styles.uploadBtn}
+              onClick={() => fileInputRef.current.click()}
+              disabled={uploading}
+            >
+              {uploading ? 'Uploading...' : '+ Upload Images'}
+            </button>
+
+            {form.images.length > 0 && (
+              <div style={styles.previewGrid}>
+                {form.images.map((url, index) => (
+                  <div key={index} style={styles.previewItem}>
+                    <img src={url} alt="preview" style={styles.previewImg} />
+                    <button
+                      type="button"
+                      style={styles.removeBtn}
+                      onClick={() => removeImage(url)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div style={styles.fullWidth}>
@@ -148,7 +204,7 @@ const UpdateListing = () => {
             <button type="button" style={styles.cancelBtn} onClick={() => navigate('/')}>
               Cancel
             </button>
-            <button type="submit" style={styles.submitBtn} disabled={loading}>
+            <button type="submit" style={styles.submitBtn} disabled={loading || uploading}>
               {loading ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
@@ -221,6 +277,52 @@ const styles = {
     border: '1px solid #ddd',
     fontSize: '15px',
     resize: 'vertical',
+  },
+  uploadBtn: {
+    alignSelf: 'flex-start',
+    padding: '8px 16px',
+    backgroundColor: '#fff',
+    color: '#222',
+    border: '1px solid #d0d0d0',
+    borderRadius: '20px',
+    fontSize: '13px',
+    fontWeight: '600',
+    cursor: 'pointer',
+  },
+  previewGrid: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '10px',
+    marginTop: '12px',
+  },
+  previewItem: {
+    position: 'relative',
+    width: '80px',
+    height: '80px',
+  },
+  previewImg: {
+    width: '80px',
+    height: '80px',
+    objectFit: 'cover',
+    borderRadius: '8px',
+    border: '1px solid #ddd',
+  },
+  removeBtn: {
+    position: 'absolute',
+    top: '-6px',
+    right: '-6px',
+    width: '20px',
+    height: '20px',
+    borderRadius: '50%',
+    backgroundColor: '#FF385C',
+    color: '#fff',
+    border: 'none',
+    fontSize: '14px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    lineHeight: 1,
   },
   buttons: {
     display: 'flex',
