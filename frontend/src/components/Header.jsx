@@ -70,7 +70,12 @@ const Header = ({ onSearch, locations = [], transparent = false }) => {
 
   const authEl = (
     <div style={{ ...styles.authArea, display: 'flex', alignItems: 'center', gap: '12px' }}>
-      <span style={{ ...styles.becomeHost, color: transparent ? '#fff' : '#222' }}>Become a Host</span>
+      <span
+        style={{ ...styles.becomeHost, color: transparent ? '#fff' : '#222' }}
+        onClick={() => navigate('/host/login')}
+      >
+        Become a Host
+      </span>
       {user ? (
         <div style={{ position: 'relative' }}>
           <button style={transparent ? styles.avatarBtnTransparent : styles.avatarBtn} onClick={() => setDropdownOpen(!dropdownOpen)}>

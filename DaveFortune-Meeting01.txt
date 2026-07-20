@@ -1,0 +1,22 @@
+https://takeuforward.org/dsa/strivers-a2z-sheet-learn-dsa-a-to-z
+
+Step 1:
+
+Problem Solving, Leetcode 
+
+Step 2:
+
+
+
+Step 3: 
+NetNinja CodeWIthAI on YouTube, React Course, 
+
+
+Step 4: https://takeuforward.org/system-design/complete-system-design-roadmap-with-videos-for-sdes
+- System Design
+
+Feedback
+
+Needs there to be a single link that contains the frontend and the backend where they all launch simultaneously. When you click on 'become a host' that should take you to the host sign in. When you click sign up on the user dashboard that would just be for viewing reservations and deleting reservations.
+
+He needs me to add those changes and rebook him so that he can mark my project
