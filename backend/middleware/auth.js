@@ -28,4 +28,12 @@ const protect = (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+// Restricts a route to specific roles — must run after protect() so req.user is set
+const requireRole = (...roles) => (req, res, next) => {
+  if (!roles.includes(req.user.role)) {
+    return res.status(403).json({ message: 'Not authorized for this action' });
+  }
+  next();
+};
+
+module.exports = { protect, requireRole };

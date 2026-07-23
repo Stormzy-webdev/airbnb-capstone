@@ -27,8 +27,11 @@ const registerUser = async (req, res) => {
     return res.status(400).json({ message: 'Email already in use' });
   }
 
+  // Only 'user' and 'host' can be self-selected at signup — 'admin' must be granted manually in the database
+  const safeRole = role === 'host' ? 'host' : 'user';
+
   // Password is hashed inside the User model before saving to MongoDB
-  const user = await User.create({ username, email, password, role });
+  const user = await User.create({ username, email, password, role: safeRole });
 
   res.status(201).json({
     _id: user._id,

@@ -86,6 +86,13 @@ const Header = ({ onSearch, locations = [], transparent = false }) => {
             <div style={styles.dropdown}>
               <p style={styles.dropdownName}>Hi, {user.username}</p>
               <hr style={styles.divider} />
+              <button
+                style={styles.dropdownItem}
+                onClick={() => { navigate('/reservations'); setDropdownOpen(false); }}
+              >
+                🗓 View reservations
+              </button>
+              <hr style={styles.divider} />
               <button style={styles.dropdownItem} onClick={handleLogout}>Log out</button>
             </div>
           )}

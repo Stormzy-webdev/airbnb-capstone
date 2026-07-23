@@ -5,6 +5,7 @@ import SearchResults from './pages/SearchResults';
 import ListingDetail from './pages/ListingDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import MyReservations from './pages/MyReservations';
 import HostLogin from './pages/host/HostLogin';
 import HostRegister from './pages/host/HostRegister';
 import HostListings from './pages/host/Listings';
@@ -28,6 +29,7 @@ function App() {
         <Route path="/listing/:id" element={<ListingDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/reservations" element={<MyReservations />} />
 
         <Route path="/host/login" element={<HostLogin />} />
         <Route path="/host/register" element={<HostRegister />} />

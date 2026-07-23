@@ -1,34 +1,45 @@
-// Shows all bookings made on the host's listings
+// Guest-facing page — view your own bookings and cancel them
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../../context/AuthContext';
-import HostHeader from '../../components/HostHeader';
-import ConfirmModal from '../../components/ConfirmModal';
+import { useAuth } from '../context/AuthContext';
+import Header from '../components/Header';
+import ConfirmModal from '../components/ConfirmModal';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-const Reservations = () => {
+const MyReservations = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [cancelTarget, setCancelTarget] = useState(null);
 
-  const fetchReservations = async () => {
-    try {
-      const { data } = await axios.get(`${API_URL}/api/reservations/host`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      setReservations(data);
-    } catch (err) {
-      setError('Failed to load reservations');
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
     }
-  };
 
-  const handleDelete = async () => {
+    const fetchReservations = async () => {
+      try {
+        const { data } = await axios.get(`${API_URL}/api/reservations/user`, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        setReservations(data);
+      } catch (err) {
+        setError('Failed to load reservations');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReservations();
+  }, [user, navigate]);
+
+  const handleCancel = async () => {
     const id = cancelTarget;
     setCancelTarget(null);
     try {
@@ -41,24 +52,20 @@ const Reservations = () => {
     }
   };
 
-  useEffect(() => {
-    fetchReservations();
-  }, []);
-
   const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString();
 
   return (
     <div>
-      <HostHeader />
+      <Header />
 
       <div style={styles.page}>
-        <h1 style={styles.title}>Reservations</h1>
+        <h1 style={styles.title}>My Reservations</h1>
 
-        {loading && <p>Loading reservations...</p>}
+        {loading && <p style={styles.status}>Loading reservations...</p>}
         {error && <p style={styles.error}>{error}</p>}
 
         {!loading && reservations.length === 0 && (
-          <p style={styles.empty}>No reservations yet.</p>
+          <p style={styles.status}>You have no reservations yet.</p>
         )}
 
         {reservations.length > 0 && (
@@ -67,7 +74,7 @@ const Reservations = () => {
               <thead>
                 <tr style={styles.thead}>
                   <th style={styles.th}>Property</th>
-                  <th style={styles.th}>Guest</th>
+                  <th style={styles.th}>Location</th>
                   <th style={styles.th}>Check In</th>
                   <th style={styles.th}>Check Out</th>
                   <th style={styles.th}>Guests</th>
@@ -79,16 +86,13 @@ const Reservations = () => {
                 {reservations.map((r) => (
                   <tr key={r._id} style={styles.row}>
                     <td style={styles.td}>{r.accommodation?.title || 'N/A'}</td>
-                    <td style={styles.td}>{r.user?.username || 'N/A'}</td>
+                    <td style={styles.td}>{r.accommodation?.location || 'N/A'}</td>
                     <td style={styles.td}>{formatDate(r.checkIn)}</td>
                     <td style={styles.td}>{formatDate(r.checkOut)}</td>
                     <td style={styles.td}>{r.guests}</td>
                     <td style={styles.td}>${r.totalPrice}</td>
                     <td style={styles.td}>
-                      <button
-                        style={styles.cancelBtn}
-                        onClick={() => setCancelTarget(r._id)}
-                      >
+                      <button style={styles.cancelBtn} onClick={() => setCancelTarget(r._id)}>
                         Cancel
                       </button>
                     </td>
@@ -103,7 +107,7 @@ const Reservations = () => {
       <ConfirmModal
         open={!!cancelTarget}
         message="Are you sure you want to cancel this reservation?"
-        onConfirm={handleDelete}
+        onConfirm={handleCancel}
         onCancel={() => setCancelTarget(null)}
       />
     </div>
@@ -113,11 +117,18 @@ const Reservations = () => {
 const styles = {
   page: {
     padding: '32px 40px',
+    maxWidth: '1100px',
+    margin: '0 auto',
   },
   title: {
     fontSize: '26px',
+    fontWeight: '700',
     color: '#222',
     marginBottom: '24px',
+  },
+  status: {
+    color: '#717171',
+    fontSize: '16px',
   },
   tableWrapper: {
     backgroundColor: '#fff',
@@ -160,10 +171,6 @@ const styles = {
   error: {
     color: '#FF385C',
   },
-  empty: {
-    color: '#717171',
-    fontSize: '16px',
-  },
 };
 
-export default Reservations;
+export default MyReservations;

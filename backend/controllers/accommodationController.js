@@ -43,12 +43,16 @@ const createAccommodation = async (req, res) => {
   res.status(201).json(accommodation);
 };
 
-// PUT /api/accommodations/:id — Update an existing listing (host only)
+// PUT /api/accommodations/:id — Update an existing listing (only the owning host, or an admin)
 const updateAccommodation = async (req, res) => {
   const accommodation = await Accommodation.findById(req.params.id);
 
   if (!accommodation) {
     return res.status(404).json({ message: 'Listing not found' });
+  }
+
+  if (accommodation.host_id.toString() !== req.user.id && req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Not authorized to update this listing' });
   }
 
   // { new: true } returns the updated document instead of the old one
@@ -61,12 +65,16 @@ const updateAccommodation = async (req, res) => {
   res.json(updated);
 };
 
-// DELETE /api/accommodations/:id — Remove a listing permanently (host only)
+// DELETE /api/accommodations/:id — Remove a listing permanently (only the owning host, or an admin)
 const deleteAccommodation = async (req, res) => {
   const accommodation = await Accommodation.findById(req.params.id);
 
   if (!accommodation) {
     return res.status(404).json({ message: 'Listing not found' });
+  }
+
+  if (accommodation.host_id.toString() !== req.user.id && req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Not authorized to delete this listing' });
   }
 
   await Accommodation.findByIdAndDelete(req.params.id);

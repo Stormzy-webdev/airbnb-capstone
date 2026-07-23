@@ -8,6 +8,11 @@ import Header from '../components/Header';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+// Static policy info shown near the bottom of every listing page — same for all listings for now
+const houseRules = ['Check-in after 3:00 PM', 'Checkout before 11:00 AM', 'No smoking', 'No parties or events'];
+const healthAndSafety = ["Carbon monoxide alarm", "Smoke alarm", "Committed to Airbnb's cleaning process"];
+const cancellationPolicy = 'Free cancellation for 48 hours after booking. After that, cancel before check-in for a partial refund.';
+
 const staticReviews = [
   {
     name: 'Amara K.',
@@ -69,7 +74,9 @@ const ListingDetail = () => {
   const cleaning = listing ? listing.cleaningFee || 0 : 0;
   const service = listing ? listing.serviceFee || 0 : 0;
   const taxes = listing ? listing.occupancyTaxes || 0 : 0;
-  const grandTotal = baseTotal + cleaning + service + taxes;
+  // Stays of a week or longer get the host's weekly discount knocked off the total
+  const weeklyDiscount = listing && nights >= 7 ? listing.weeklyDiscount || 0 : 0;
+  const grandTotal = baseTotal + cleaning + service + taxes - weeklyDiscount;
 
   const handleReserve = async () => {
     if (!user) {
@@ -282,6 +289,13 @@ const ListingDetail = () => {
                       <span>${listing.price} × {nights} night{nights > 1 ? 's' : ''}</span>
                       <span>${baseTotal}</span>
                     </div>
+                    {/* Only kicks in once the stay is a week or longer */}
+                    {weeklyDiscount > 0 && (
+                      <div style={styles.priceRow}>
+                        <span>Weekly discount</span>
+                        <span>-${weeklyDiscount}</span>
+                      </div>
+                    )}
                     {cleaning > 0 && (
                       <div style={styles.priceRow}>
                         <span>Cleaning fee</span>
@@ -401,6 +415,32 @@ const ListingDetail = () => {
           Hey, I'm Storm — a passionate traveller turned host. I love making sure every guest feels right at home, whether you're here for business or a holiday. I'm always a message away if you need anything, and I pride myself on keeping every space spotless and well-stocked. Looking forward to hosting you!
         </p>
         <button style={styles.contactHostBtn}>Contact host</button>
+
+        {/* House rules, health & safety, cancellation policy — good to know before booking */}
+        <hr style={styles.divider} />
+        <h2 style={styles.sectionTitle}>Things to know</h2>
+        <div style={styles.policyGrid}>
+          <div>
+            <h3 style={styles.subHeading}>House rules</h3>
+            <ul style={styles.policyList}>
+              {houseRules.map((rule, i) => (
+                <li key={i} style={styles.policyItem}>{rule}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3 style={styles.subHeading}>Health & safety</h3>
+            <ul style={styles.policyList}>
+              {healthAndSafety.map((item, i) => (
+                <li key={i} style={styles.policyItem}>{item}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3 style={styles.subHeading}>Cancellation policy</h3>
+            <p style={styles.policyText}>{cancellationPolicy}</p>
+          </div>
+        </div>
 
       </div>
     </div>
@@ -795,6 +835,28 @@ const styles = {
     fontWeight: '600',
     cursor: 'pointer',
     marginBottom: '40px',
+  },
+  policyGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '32px',
+    marginBottom: '40px',
+  },
+  policyList: {
+    listStyle: 'none',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+  },
+  policyItem: {
+    fontSize: '14px',
+    color: '#444',
+    lineHeight: '1.5',
+  },
+  policyText: {
+    fontSize: '14px',
+    color: '#444',
+    lineHeight: '1.6',
   },
 };
 

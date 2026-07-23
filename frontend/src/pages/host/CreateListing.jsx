@@ -45,6 +45,11 @@ const CreateListing = () => {
     bedrooms: '',
     bathrooms: '',
     price: '',
+    // These four are all optional extra costs a host can charge on top of the nightly price
+    weeklyDiscount: '',
+    cleaningFee: '',
+    serviceFee: '',
+    occupancyTaxes: '',
     amenities: '',
     images: [],
     enhancedCleaning: false,
@@ -83,6 +88,11 @@ const CreateListing = () => {
           bedrooms: Number(form.bedrooms),
           bathrooms: Number(form.bathrooms),
           price: Number(form.price),
+          // Fall back to 0 for any fee the host left blank, rather than saving an empty string
+          weeklyDiscount: Number(form.weeklyDiscount) || 0,
+          cleaningFee: Number(form.cleaningFee) || 0,
+          serviceFee: Number(form.serviceFee) || 0,
+          occupancyTaxes: Number(form.occupancyTaxes) || 0,
           amenities: form.amenities ? form.amenities.split(',').map((a) => a.trim()) : [],
         },
         { headers: { Authorization: `Bearer ${user.token}` } }
@@ -240,6 +250,29 @@ const CreateListing = () => {
                 <div style={{ ...styles.field, flex: 1 }}>
                   <label style={styles.label}>Bathrooms *</label>
                   <input type="number" name="bathrooms" value={form.bathrooms} onChange={handleChange} style={styles.input} />
+                </div>
+              </div>
+
+              {/* Extra costs — all optional, guests will see these broken out on the booking page */}
+              <div style={styles.inlineRow}>
+                <div style={{ ...styles.field, flex: 1 }}>
+                  <label style={styles.label}>Weekly Discount ($)</label>
+                  <input type="number" name="weeklyDiscount" value={form.weeklyDiscount} onChange={handleChange} style={styles.input} />
+                </div>
+                <div style={{ ...styles.field, flex: 1 }}>
+                  <label style={styles.label}>Cleaning Fee ($)</label>
+                  <input type="number" name="cleaningFee" value={form.cleaningFee} onChange={handleChange} style={styles.input} />
+                </div>
+              </div>
+
+              <div style={styles.inlineRow}>
+                <div style={{ ...styles.field, flex: 1 }}>
+                  <label style={styles.label}>Service Fee ($)</label>
+                  <input type="number" name="serviceFee" value={form.serviceFee} onChange={handleChange} style={styles.input} />
+                </div>
+                <div style={{ ...styles.field, flex: 1 }}>
+                  <label style={styles.label}>Occupancy Taxes ($)</label>
+                  <input type="number" name="occupancyTaxes" value={form.occupancyTaxes} onChange={handleChange} style={styles.input} />
                 </div>
               </div>
 

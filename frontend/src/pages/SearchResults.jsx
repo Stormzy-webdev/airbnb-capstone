@@ -70,7 +70,13 @@ const SearchResults = () => {
                   <p style={styles.cardTitle}>{listing.title}</p>
                   <p style={styles.location}>{listing.location}</p>
                   <p style={styles.type}>{listing.type}</p>
-                  {listing.rating && <p style={styles.rating}>★ {listing.rating}</p>}
+                  {/* Only show a rating once the listing actually has reviews */}
+                  {listing.rating > 0 && (
+                    <p style={styles.rating}>★ {listing.rating} · {listing.reviews} review{listing.reviews === 1 ? '' : 's'}</p>
+                  )}
+                  {listing.amenities && listing.amenities.length > 0 && (
+                    <p style={styles.amenities}>{listing.amenities.slice(0, 3).join(' · ')}</p>
+                  )}
                 </div>
                 <div style={styles.cardFooter}>
                   <p style={styles.price}><strong>${listing.price}</strong> / night</p>
@@ -164,6 +170,11 @@ const styles = {
   rating: {
     fontSize: '14px',
     color: '#222',
+  },
+  amenities: {
+    fontSize: '13px',
+    color: '#717171',
+    marginTop: '4px',
   },
   cardFooter: {
     display: 'flex',

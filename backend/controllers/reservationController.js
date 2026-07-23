@@ -43,12 +43,19 @@ const getReservationsByUser = async (req, res) => {
   res.json(reservations);
 };
 
-// DELETE /api/reservations/:id — Cancel a reservation
+// DELETE /api/reservations/:id — Cancel a reservation (the guest who booked it, the host it belongs to, or an admin)
 const deleteReservation = async (req, res) => {
   const reservation = await Reservation.findById(req.params.id);
 
   if (!reservation) {
     return res.status(404).json({ message: 'Reservation not found' });
+  }
+
+  const isGuest = reservation.user.toString() === req.user.id;
+  const isHost = reservation.host_id.toString() === req.user.id;
+
+  if (!isGuest && !isHost && req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Not authorized to cancel this reservation' });
   }
 
   await Reservation.findByIdAndDelete(req.params.id);

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import HostHeader from '../../components/HostHeader';
+import ConfirmModal from '../../components/ConfirmModal';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -12,6 +13,7 @@ const Listings = () => {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -27,15 +29,16 @@ const Listings = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this listing?')) return;
+  const handleDelete = async () => {
+    const id = deleteTarget;
+    setDeleteTarget(null);
     try {
       await axios.delete(`${API_URL}/api/accommodations/${id}`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       setListings(listings.filter((listing) => listing._id !== id));
     } catch (err) {
-      alert('Failed to delete listing');
+      setError('Failed to delete listing');
     }
   };
 
@@ -116,7 +119,7 @@ const Listings = () => {
                 </button>
                 <button
                   style={styles.deleteBtn}
-                  onClick={() => handleDelete(listing._id)}
+                  onClick={() => setDeleteTarget(listing._id)}
                 >
                   Delete
                 </button>
@@ -125,6 +128,13 @@ const Listings = () => {
           ))}
         </div>
       </div>
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        message="Are you sure you want to delete this listing?"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };
